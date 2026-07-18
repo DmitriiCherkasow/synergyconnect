@@ -6,8 +6,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/DmitriiCherkasow/synergyconnect/internal/domain"
-	"github.com/DmitriiCherkasow/synergyconnect/pkg/jwt"
+	"github.com/DmitriiCherkasow/synergyconnect.git/internal/domain"
+	"github.com/DmitriiCherkasow/synergyconnect.git/pkg/jwt"
 )
 
 // JWTAuthMiddleware — проверяет JWT-токен и добавляет пользователя в контекст
