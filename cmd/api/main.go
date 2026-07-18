@@ -10,12 +10,12 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
-	"github.com/DmitriiCherkasow/synergyconnect/internal/application"
-	"github.com/DmitriiCherkasow/synergyconnect/internal/domain"
-	"github.com/DmitriiCherkasow/synergyconnect/internal/infrastructure/database"
-	"github.com/DmitriiCherkasow/synergyconnect/internal/interfaces/http/handlers"
-	"github.com/DmitriiCherkasow/synergyconnect/internal/interfaces/http/middleware"
-	"github.com/DmitriiCherkasow/synergyconnect/pkg/jwt"
+	"github.com/DmitriiCherkasow/synergyconnect.git/internal/application"
+	"github.com/DmitriiCherkasow/synergyconnect.git/internal/domain"
+	"github.com/DmitriiCherkasow/synergyconnect.git/internal/infrastructure/database"
+	"github.com/DmitriiCherkasow/synergyconnect.git/internal/interfaces/http/handlers"
+	"github.com/DmitriiCherkasow/synergyconnect.git/internal/interfaces/http/middleware"
+	"github.com/DmitriiCherkasow/synergyconnect.git/pkg/jwt"
 )
 
 func main() {
