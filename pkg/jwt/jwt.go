@@ -4,7 +4,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/golang-jwt/jwt/v5"
+	jwtlib "github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 )
 
@@ -13,7 +13,7 @@ type Claims struct {
 	UserID uuid.UUID `json:"user_id"`
 	Email  string    `json:"email"`
 	Role   string    `json:"role"`
-	jwt.RegisteredClaims
+	jwtlib.RegisteredClaims
 }
 
 // Config — конфигурация JWT
@@ -69,14 +69,14 @@ func (s *JWTService) generateAccessToken(userID uuid.UUID, email, role string) (
 		UserID: userID,
 		Email:  email,
 		Role:   role,
-		RegisteredClaims: jwt.RegisteredClaims{
-			IssuedAt:  jwt.NewNumericDate(now),
-			ExpiresAt: jwt.NewNumericDate(expiresAt),
+		RegisteredClaims: jwtlib.RegisteredClaims{
+			IssuedAt:  jwtlib.NewNumericDate(now),
+			ExpiresAt: jwtlib.NewNumericDate(expiresAt),
 			Issuer:    "synergyconnect",
 		},
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	token := jwtlib.NewWithClaims(jwtlib.SigningMethodHS256, claims)
 	tokenString, err := token.SignedString([]byte(s.config.SecretKey))
 	if err != nil {
 		return "", 0, err
@@ -90,20 +90,20 @@ func (s *JWTService) generateRefreshToken(userID uuid.UUID) (string, error) {
 	now := time.Now()
 	expiresAt := now.Add(s.config.RefreshExpiration)
 
-	claims := jwt.RegisteredClaims{
+	claims := jwtlib.RegisteredClaims{
 		Subject:   userID.String(),
-		IssuedAt:  jwt.NewNumericDate(now),
-		ExpiresAt: jwt.NewNumericDate(expiresAt),
+		IssuedAt:  jwtlib.NewNumericDate(now),
+		ExpiresAt: jwtlib.NewNumericDate(expiresAt),
 		Issuer:    "synergyconnect-refresh",
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	token := jwtlib.NewWithClaims(jwtlib.SigningMethodHS256, claims)
 	return token.SignedString([]byte(s.config.SecretKey))
 }
 
 // ValidateAccessToken проверяет access-токен и возвращает Claims
 func (s *JWTService) ValidateAccessToken(tokenString string) (*Claims, error) {
-	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwtlib.ParseWithClaims(tokenString, &Claims{}, func(token *jwtlib.Token) (interface{}, error) {
 		return []byte(s.config.SecretKey), nil
 	})
 
@@ -120,7 +120,7 @@ func (s *JWTService) ValidateAccessToken(tokenString string) (*Claims, error) {
 
 // ValidateRefreshToken проверяет refresh-токен и возвращает userID
 func (s *JWTService) ValidateRefreshToken(tokenString string) (uuid.UUID, error) {
-	token, err := jwt.ParseWithClaims(tokenString, &jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwtlib.ParseWithClaims(tokenString, &jwtlib.RegisteredClaims{}, func(token *jwtlib.Token) (interface{}, error) {
 		return []byte(s.config.SecretKey), nil
 	})
 
@@ -128,7 +128,7 @@ func (s *JWTService) ValidateRefreshToken(tokenString string) (uuid.UUID, error)
 		return uuid.Nil, err
 	}
 
-	if claims, ok := token.Claims.(*jwt.RegisteredClaims); ok && token.Valid {
+	if claims, ok := token.Claims.(*jwtlib.RegisteredClaims); ok && token.Valid {
 		return uuid.Parse(claims.Subject)
 	}
 
