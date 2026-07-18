@@ -5,8 +5,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/DmitriiCherkasow/synergyconnect/internal/application"
-	"github.com/DmitriiCherkasow/synergyconnect/internal/interfaces/http/dto"
+	"github.com/DmitriiCherkasow/synergyconnect.git/internal/application"
+	"github.com/DmitriiCherkasow/synergyconnect.git/internal/interfaces/http/dto"
 )
 
 // AuthHandler — обработчик для эндпоинтов аутентификации
