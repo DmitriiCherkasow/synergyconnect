@@ -7,7 +7,7 @@ import (
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 
-	"github.com/DmitriiCherkasow/synergyconnect/internal/domain"
+	"github.com/DmitriiCherkasow/synergyconnect.git/internal/domain"
 )
 
 // UserRepository — репозиторий для работы с пользователями
