@@ -23,7 +23,7 @@ type Argon2Config struct {
 // DefaultArgon2Config — безопасные параметры по умолчанию
 func DefaultArgon2Config() Argon2Config {
 	return Argon2Config{
-		Time:    3,      // 3 итерации
+		Time:    3,         // 3 итерации
 		Memory:  64 * 1024, // 64 MB
 		Threads: 4,
 		KeyLen:  32,
@@ -75,28 +75,40 @@ func VerifyPassword(password, encodedHash string) (bool, error) {
 		return false, errors.New("invalid hash format")
 	}
 
-	// Проверка версии
+	// Проверка алгоритма
 	if parts[1] != "argon2id" {
 		return false, errors.New("unsupported algorithm")
 	}
 
-	// Парсинг параметров
+	// Проверка версии (parts[2] содержит "v=19")
+	versionPart := parts[2]
+	if !strings.HasPrefix(versionPart, "v=") {
+		return false, errors.New("invalid version format")
+	}
 	var version int
+	if _, err := fmt.Sscanf(versionPart, "v=%d", &version); err != nil {
+		return false, errors.New("invalid version")
+	}
+	if version != argon2.Version {
+		return false, errors.New("incompatible argon2 version")
+	}
+
+	// Парсинг параметров из parts[3] (m=65536,t=3,p=4)
 	var memory, time, threads int
 	_, err := fmt.Sscanf(parts[3], "m=%d,t=%d,p=%d", &memory, &time, &threads)
 	if err != nil {
 		return false, errors.New("invalid parameters")
 	}
 
-	// Декодируем соль и хеш
+	// Декодируем соль и хеш из parts[4] и parts[5]
 	salt, err := base64.RawStdEncoding.DecodeString(parts[4])
 	if err != nil {
-		return false, err
+		return false, errors.New("invalid salt encoding")
 	}
 
 	hash, err := base64.RawStdEncoding.DecodeString(parts[5])
 	if err != nil {
-		return false, err
+		return false, errors.New("invalid hash encoding")
 	}
 
 	// Хешируем пароль с теми же параметрами
