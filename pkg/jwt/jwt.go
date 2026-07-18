@@ -18,9 +18,9 @@ type Claims struct {
 
 // Config — конфигурация JWT
 type Config struct {
-	SecretKey          string
-	AccessExpiration   time.Duration
-	RefreshExpiration  time.Duration
+	SecretKey         string
+	AccessExpiration  time.Duration
+	RefreshExpiration time.Duration
 }
 
 // TokenPair — пара токенов (access + refresh)
@@ -30,13 +30,14 @@ type TokenPair struct {
 	ExpiresIn    int64  `json:"expires_in"` // время жизни access в секундах
 }
 
+// JWTService — сервис для работы с JWT
+type JWTService struct {
+	config Config
+}
+
 // NewJWTService создает сервис для работы с JWT
 func NewJWTService(config Config) *JWTService {
 	return &JWTService{config: config}
-}
-
-type JWTService struct {
-	config Config
 }
 
 // GenerateTokenPair генерирует пару токенов (access + refresh)
@@ -132,16 +133,4 @@ func (s *JWTService) ValidateRefreshToken(tokenString string) (uuid.UUID, error)
 	}
 
 	return uuid.Nil, errors.New("invalid refresh token")
-}
-
-// RefreshAccessToken создает новый access-токен на основе refresh-токена
-func (s *JWTService) RefreshAccessToken(refreshToken string) (*TokenPair, error) {
-	userID, err := s.ValidateRefreshToken(refreshToken)
-	if err != nil {
-		return nil, err
-	}
-
-	// Здесь нужно получить данные пользователя из БД, но это делает сервис выше
-	// JWTService только генерирует токены
-	return nil, errors.New("use AuthService.RefreshTokens instead")
 }
