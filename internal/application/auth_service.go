@@ -3,13 +3,12 @@ package application
 import (
 	"context"
 	"errors"
-	"time"
 
 	"github.com/google/uuid"
 
-	"github.com/DmitriiCherkasow/synergyconnect/internal/domain"
-	"github.com/DmitriiCherkasow/synergyconnect/pkg/crypto"
-	"github.com/DmitriiCherkasow/synergyconnect/pkg/jwt"
+	"github.com/DmitriiCherkasow/synergyconnect.git/internal/domain"
+	"github.com/DmitriiCherkasow/synergyconnect.git/pkg/crypto"
+	"github.com/DmitriiCherkasow/synergyconnect.git/pkg/jwt"
 )
 
 // UserRepository — интерфейс для работы с пользователями
