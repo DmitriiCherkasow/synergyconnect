@@ -14,6 +14,7 @@ type RegisterRequest struct {
 	LastName  string `json:"last_name"`
 }
 
+// Validate проверяет корректность запроса
 func (r *RegisterRequest) Validate() error {
 	return validate.Struct(r)
 }
@@ -24,6 +25,7 @@ type LoginRequest struct {
 	Password string `json:"password" binding:"required"`
 }
 
+// Validate проверяет корректность запроса
 func (r *LoginRequest) Validate() error {
 	return validate.Struct(r)
 }
@@ -41,7 +43,7 @@ type AuthResponse struct {
 	User         UserResponse `json:"user"`
 }
 
-// UserResponse — информация о пользователе
+// UserResponse — информация о пользователе (без конфиденциальных данных)
 type UserResponse struct {
 	ID         string `json:"id"`
 	Email      string `json:"email"`
