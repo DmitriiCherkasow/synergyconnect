@@ -8,8 +8,8 @@ var validate = validator.New()
 
 // RegisterRequest — запрос на регистрацию
 type RegisterRequest struct {
-	Email     string `json:"email" binding:"required,email"`
-	Password  string `json:"password" binding:"required,min=8"`
+	Email     string `json:"email" validate:"required,email"`
+	Password  string `json:"password" validate:"required,min=8"`
 	FirstName string `json:"first_name"`
 	LastName  string `json:"last_name"`
 }
@@ -21,8 +21,8 @@ func (r *RegisterRequest) Validate() error {
 
 // LoginRequest — запрос на вход
 type LoginRequest struct {
-	Email    string `json:"email" binding:"required,email"`
-	Password string `json:"password" binding:"required"`
+	Email    string `json:"email" validate:"required,email"`
+	Password string `json:"password" validate:"required"`
 }
 
 // Validate проверяет корректность запроса
@@ -32,7 +32,7 @@ func (r *LoginRequest) Validate() error {
 
 // RefreshTokenRequest — запрос на обновление токена
 type RefreshTokenRequest struct {
-	RefreshToken string `json:"refresh_token" binding:"required"`
+	RefreshToken string `json:"refresh_token" validate:"required"`
 }
 
 // AuthResponse — ответ при успешной аутентификации
@@ -43,7 +43,7 @@ type AuthResponse struct {
 	User         UserResponse `json:"user"`
 }
 
-// UserResponse — информация о пользователе (без конфиденциальных данных)
+// UserResponse — информация о пользователе
 type UserResponse struct {
 	ID         string `json:"id"`
 	Email      string `json:"email"`
