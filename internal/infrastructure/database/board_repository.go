@@ -79,3 +79,11 @@ func (r *BoardRepository) Archive(ctx context.Context, id uuid.UUID) error {
 		Where("id = ?", id).
 		Update("is_archived", true).Error
 }
+
+// Unarchive разархивирует доску
+func (r *BoardRepository) Unarchive(ctx context.Context, id uuid.UUID) error {
+	return r.db.WithContext(ctx).
+		Model(&domain.Board{}).
+		Where("id = ?", id).
+		Update("is_archived", false).Error
+}

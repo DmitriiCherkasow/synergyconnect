@@ -18,6 +18,7 @@ type BoardRepository interface {
 	Update(ctx context.Context, board *domain.Board) error
 	Delete(ctx context.Context, id uuid.UUID) error
 	Archive(ctx context.Context, id uuid.UUID) error
+	Unarchive(ctx context.Context, id uuid.UUID) error
 }
 
 // StickerRepository — интерфейс для работы со стикерами
@@ -190,3 +191,28 @@ func (s *BoardService) DeleteBoard(ctx context.Context, boardID, userID uuid.UUI
 	return s.boardRepo.Delete(ctx, boardID)
 }
 
+// ArchiveBoard архивирует доску
+func (s *BoardService) ArchiveBoard(ctx context.Context, boardID uuid.UUID) error {
+	board, err := s.boardRepo.FindByID(ctx, boardID)
+	if err != nil {
+		return err
+	}
+	if board == nil {
+		return errors.New("board not found")
+	}
+
+	return s.boardRepo.Archive(ctx, boardID)
+}
+
+// UnarchiveBoard разархивирует доску
+func (s *BoardService) UnarchiveBoard(ctx context.Context, boardID uuid.UUID) error {
+	board, err := s.boardRepo.FindByID(ctx, boardID)
+	if err != nil {
+		return err
+	}
+	if board == nil {
+		return errors.New("board not found")
+	}
+
+	return s.boardRepo.Unarchive(ctx, boardID)
+}

@@ -107,7 +107,7 @@ func main() {
 	groupHandler := handlers.NewGroupHandler(groupService)
 
 	// Обработчики для Спринта 2
-	boardHandler := handlers.NewBoardHandler(boardService)
+	boardHandler := handlers.NewBoardHandler(boardService, stickerService)
 	stickerHandler := handlers.NewStickerHandler(stickerService)
 
 	// Настраиваем роутер

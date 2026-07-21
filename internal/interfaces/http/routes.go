@@ -69,6 +69,23 @@ func SetupRoutes(
 					"user_id": userID,
 				})
 			})
+
+		    // Доски (Boards)
+			protected.POST("/boards", boardHandler.CreateBoard)
+			protected.GET("/boards", boardHandler.GetUserBoards)
+			protected.GET("/boards/:id", boardHandler.GetBoard)
+			protected.PUT("/boards/:id", boardHandler.UpdateBoard)
+			protected.DELETE("/boards/:id", boardHandler.DeleteBoard)
+			protected.PATCH("/boards/:id/archive", boardHandler.ArchiveBoard)
+			protected.PATCH("/boards/:id/unarchive", boardHandler.UnarchiveBoard)
+
+			// Стикеры (Stickers)
+			protected.POST("/boards/:boardId/stickers", stickerHandler.CreateSticker)
+			protected.GET("/stickers/:id", stickerHandler.GetSticker)
+			protected.PUT("/stickers/:id", stickerHandler.UpdateSticker)
+			protected.DELETE("/stickers/:id", stickerHandler.DeleteSticker)
+			protected.PATCH("/stickers/:id/toggle-complete", stickerHandler.ToggleComplete)
+			protected.PATCH("/stickers/:id/position", stickerHandler.UpdatePosition)
 		}
 	}
 }
