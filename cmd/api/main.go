@@ -101,6 +101,7 @@ func main() {
 	// Сервисы для Спринта 2
 	boardService := application.NewBoardService(boardRepo, stickerRepo, reminderRepo)
 	stickerService := application.NewStickerService(stickerRepo, boardRepo, reminderRepo)
+	reminderService := application.NewReminderService(reminderRepo, stickerRepo)
 
 	// ============================================================
 	// ИНИЦИАЛИЗАЦИЯ ОБРАБОТЧИКОВ
@@ -113,6 +114,7 @@ func main() {
 	// Обработчики для Спринта 2
 	boardHandler := handlers.NewBoardHandler(boardService, stickerService)
 	stickerHandler := handlers.NewStickerHandler(stickerService)
+	reminderHandler := handlers.NewReminderHandler(reminderService)
 
 	// ============================================================
 	// EMAIL КОНФИГУРАЦИЯ И ВОРКЕР
@@ -158,6 +160,7 @@ func main() {
 		groupHandler,
 		boardHandler,
 		stickerHandler,
+		reminderHandler,
 		jwtService,
 	)
 

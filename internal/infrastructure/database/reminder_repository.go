@@ -81,6 +81,11 @@ func (r *ReminderRepository) MarkAsSent(ctx context.Context, id uuid.UUID) error
 		}).Error
 }
 
+// Update обновляет напоминание
+func (r *ReminderRepository) Update(ctx context.Context, reminder *domain.Reminder) error {
+	return r.db.WithContext(ctx).Save(reminder).Error
+}
+
 // Delete удаляет напоминание
 func (r *ReminderRepository) Delete(ctx context.Context, id uuid.UUID) error {
 	return r.db.WithContext(ctx).Delete(&domain.Reminder{}, "id = ?", id).Error

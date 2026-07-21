@@ -41,6 +41,7 @@ type ReminderRepository interface {
 	FindByUserID(ctx context.Context, userID uuid.UUID) ([]domain.Reminder, error)
 	FindByStickerID(ctx context.Context, stickerID uuid.UUID) ([]domain.Reminder, error)
 	MarkAsSent(ctx context.Context, id uuid.UUID) error
+	Update(ctx context.Context, reminder *domain.Reminder) error
 	Delete(ctx context.Context, id uuid.UUID) error
 	DeleteByStickerID(ctx context.Context, stickerID uuid.UUID) error
 }
