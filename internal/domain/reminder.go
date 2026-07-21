@@ -2,7 +2,9 @@ package domain
 
 import (
 	"time"
+
 	"github.com/google/uuid"
+	"github.com/lib/pq"
 )
 
 // ReminderRecurrence — тип повторения напоминания
@@ -22,8 +24,8 @@ type Reminder struct {
 	UserID             uuid.UUID           `json:"user_id" gorm:"type:uuid;not null"`
 	RemindAt           time.Time           `json:"remind_at" gorm:"not null"`
 	Recurrence         ReminderRecurrence  `json:"recurrence" gorm:"default:'one_time'"`
-	RecurrenceInterval *int                `json:"recurrence_interval,omitempty"` // для custom в минутах
-	WarningMinutes     []int               `json:"warning_minutes" gorm:"type:integer[];default:'{}'"`
+	RecurrenceInterval *int                `json:"recurrence_interval,omitempty"`
+	WarningMinutes     pq.Int64Array       `json:"warning_minutes" gorm:"type:integer[];default:'{}'"`
 	IsSent             bool                `json:"is_sent" gorm:"default:false"`
 	SentAt             *time.Time          `json:"sent_at,omitempty"`
 	CreatedAt          time.Time           `json:"created_at" gorm:"autoCreateTime"`
@@ -72,4 +74,3 @@ func (r *Reminder) CreateNextReminder() *Reminder {
 		IsSent:             false,
 	}
 }
-

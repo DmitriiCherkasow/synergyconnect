@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 
 	"github.com/DmitriiCherkasow/synergyconnect.git/internal/domain"
 	"github.com/DmitriiCherkasow/synergyconnect.git/pkg/jwt"
@@ -40,12 +41,11 @@ func JWTAuthMiddleware(jwtService *jwt.JWTService) gin.HandlerFunc {
 		}
 
 		// Сохраняем данные пользователя в контексте
-		c.Set("user_id", claims.UserID)
-		c.Set("user_email", claims.Email)
-		c.Set("user_role", claims.Role)
+		c.Set("user_id", claims.UserID)        // uuid.UUID
+		c.Set("user_email", claims.Email)      // string
+		c.Set("user_role", claims.Role)        // string
 
-		// Полная структура пользователя (загружаем из БД при необходимости)
-		// Можно сделать lazy-loading через middleware
+		// Полная структура пользователя
 		c.Set("user", &domain.User{
 			ID:    claims.UserID,
 			Email: claims.Email,
@@ -80,11 +80,31 @@ func RequireRole(allowedRoles ...domain.UserRole) gin.HandlerFunc {
 	}
 }
 
-// GetUserIDFromContext — вспомогательная функция для получения user_id из контекста
+// GetUserIDFromContext — возвращает user_id из контекста как UUID
 func GetUserIDFromContext(c *gin.Context) string {
 	userID, exists := c.Get("user_id")
 	if !exists {
 		return ""
 	}
-	return userID.(string)
+
+	// user_id сохранён как uuid.UUID, преобразуем в строку
+	if uid, ok := userID.(uuid.UUID); ok {
+		return uid.String()
+	}
+
+	return ""
+}
+
+// GetUserIDFromContextAsUUID — возвращает user_id из контекста как uuid.UUID
+func GetUserIDFromContextAsUUID(c *gin.Context) (uuid.UUID, error) {
+	userID, exists := c.Get("user_id")
+	if !exists {
+		return uuid.Nil, nil
+	}
+
+	if uid, ok := userID.(uuid.UUID); ok {
+		return uid, nil
+	}
+
+	return uuid.Nil, nil
 }

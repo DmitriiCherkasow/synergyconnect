@@ -7,6 +7,8 @@ import (
 
 	"github.com/google/uuid"
 
+	"github.com/lib/pq"
+
 	"github.com/DmitriiCherkasow/synergyconnect.git/internal/domain"
 )
 
@@ -51,13 +53,19 @@ func (s *ReminderService) CreateReminder(ctx context.Context, req CreateReminder
 		return nil, errors.New("access denied")
 	}
 
+	// Преобразуем []int в pq.Int64Array
+	warningMinutes := pq.Int64Array{}
+	for _, v := range req.WarningMinutes {
+		warningMinutes = append(warningMinutes, int64(v))
+	}
+
 	reminder := &domain.Reminder{
 		StickerID:          req.StickerID,
 		UserID:             req.UserID,
 		RemindAt:           req.RemindAt,
 		Recurrence:         req.Recurrence,
 		RecurrenceInterval: req.RecurrenceInterval,
-		WarningMinutes:     req.WarningMinutes,
+		WarningMinutes:     warningMinutes,
 		IsSent:             false,
 	}
 

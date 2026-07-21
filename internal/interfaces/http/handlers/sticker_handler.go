@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -47,12 +48,11 @@ func (h *StickerHandler) CreateSticker(c *gin.Context) {
 		return
 	}
 
-	userIDStr := middleware.GetUserIDFromContext(c)
-	if userIDStr == "" {
+	userID, err := middleware.GetUserIDFromContextAsUUID(c)
+	if err != nil || userID == uuid.Nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
 		return
 	}
-	userID, _ := uuid.Parse(userIDStr)
 
 	// Устанавливаем значения по умолчанию
 	color := domain.StickerColor(req.Color)
@@ -92,6 +92,7 @@ func (h *StickerHandler) CreateSticker(c *gin.Context) {
 			c.JSON(http.StatusNotFound, gin.H{"error": "board not found"})
 			return
 		}
+		log.Printf("❌ Failed to create sticker: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}

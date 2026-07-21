@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -61,10 +62,12 @@ func (h *BoardHandler) CreateBoard(c *gin.Context) {
 		ColorHex:    colorHex,
 	})
 	if err != nil {
+		log.Printf("❌ Failed to create board: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
+	// board уже содержит Owner
 	stickers, _ := h.stickerService.GetBoardStickers(c.Request.Context(), board.ID)
 	c.JSON(http.StatusCreated, dto.ToBoardResponse(board, stickers))
 }

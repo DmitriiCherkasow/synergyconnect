@@ -76,7 +76,8 @@ func (s *StickerService) CreateSticker(ctx context.Context, req CreateStickerReq
 		return nil, err
 	}
 
-	return sticker, nil
+	// Загружаем созданный стикер с автором
+	return s.stickerRepo.FindByID(ctx, sticker.ID)
 }
 
 // GetSticker возвращает стикер по ID

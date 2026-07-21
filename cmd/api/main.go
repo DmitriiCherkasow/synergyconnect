@@ -126,7 +126,7 @@ func main() {
 		Password: getEnv("SMTP_PASSWORD", ""),
 		From:     getEnv("FROM_EMAIL", ""),
 		FromName: "SynergyConnect",
-		UseTLS:   true,
+		UseTLS:   false,
 	}
 	emailService := email.NewService(emailConfig)
 

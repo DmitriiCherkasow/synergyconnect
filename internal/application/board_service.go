@@ -90,7 +90,8 @@ func (s *BoardService) CreateBoard(ctx context.Context, req CreateBoardRequest) 
 		return nil, err
 	}
 
-	return board, nil
+	// Загружаем созданную доску с владельцем
+	return s.boardRepo.FindByID(ctx, board.ID)
 }
 
 // GetBoard возвращает доску по ID с проверкой прав
