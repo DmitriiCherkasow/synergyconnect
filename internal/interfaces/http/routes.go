@@ -15,6 +15,8 @@ func SetupRoutes(
 	postHandler *handlers.PostHandler,
 	commentHandler *handlers.CommentHandler,
 	groupHandler *handlers.GroupHandler,
+	boardHandler *handlers.BoardHandler,
+	stickerHandler *handlers.StickerHandler,
 	jwtService *jwt.JWTService,
 ) {
 	// Health-check

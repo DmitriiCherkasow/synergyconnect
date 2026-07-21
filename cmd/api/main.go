@@ -38,9 +38,7 @@ func main() {
 	}
 	log.Println("✅ Database connected")
 
-	// ============================================================
-	// МИГРАЦИИ: Добавляем все модели
-	// ============================================================
+	// Миграции
 	if err := db.AutoMigrate(
 		&domain.User{},
 		&domain.Post{},
@@ -48,10 +46,10 @@ func main() {
 		&domain.Tag{},
 		&domain.Group{},
 		&domain.Subscription{},
-		&domain.Board{},        
-		&domain.Sticker{},      
-		&domain.Reminder{},     
-		&domain.ReminderEmail{}, 
+		&domain.Board{},
+		&domain.Sticker{},
+		&domain.Reminder{},
+		&domain.ReminderEmail{},
 	); err != nil {
 		log.Fatalf("❌ Failed to migrate database: %v", err)
 	}
@@ -75,7 +73,7 @@ func main() {
 	jwtService := jwt.NewJWTService(jwtConfig)
 
 	// ============================================================
-	// ИНИЦИАЛИЗАЦИЯ РЕПОЗИТОРИЕВ
+	// ИНИЦИАЛИЗАЦИЯ РЕПОЗИТОРИЕВ (все)
 	// ============================================================
 	userRepo := database.NewUserRepository(db)
 	postRepo := database.NewPostRepository(db)
@@ -84,12 +82,21 @@ func main() {
 	subscriptionRepo := database.NewSubscriptionRepository(db)
 	tagRepo := database.NewTagRepository(db)
 
+	// Репозитории для Спринта 2
+	boardRepo := database.NewBoardRepository(db)
+	stickerRepo := database.NewStickerRepository(db)
+	reminderRepo := database.NewReminderRepository(db)
+	
 	// ============================================================
 	// ИНИЦИАЛИЗАЦИЯ СЕРВИСОВ
 	// ============================================================
 	authService := application.NewAuthService(userRepo, jwtService)
 	postService := application.NewPostService(postRepo, commentRepo, tagRepo)
 	groupService := application.NewGroupService(groupRepo, subscriptionRepo)
+
+	// Сервисы для Спринта 2
+	boardService := application.NewBoardService(boardRepo, stickerRepo, reminderRepo)
+	stickerService := application.NewStickerService(stickerRepo, boardRepo, reminderRepo)
 
 	// ============================================================
 	// ИНИЦИАЛИЗАЦИЯ ОБРАБОТЧИКОВ
@@ -99,13 +106,24 @@ func main() {
 	commentHandler := handlers.NewCommentHandler(postService)
 	groupHandler := handlers.NewGroupHandler(groupService)
 
+	// Обработчики для Спринта 2
+	boardHandler := handlers.NewBoardHandler(boardService)
+	stickerHandler := handlers.NewStickerHandler(stickerService)
+
 	// Настраиваем роутер
 	r := gin.Default()
 
-	// ============================================================
-	// НАСТРОЙКА МАРШРУТОВ (используем функцию SetupRoutes)
-	// ============================================================
-	http.SetupRoutes(r, authHandler, postHandler, commentHandler, groupHandler, jwtService)
+	// Настройка маршрутов
+	http.SetupRoutes(
+		r,
+		authHandler,
+		postHandler,
+		commentHandler,
+		groupHandler,
+		boardHandler,    // добавляем
+		stickerHandler,  // добавляем
+		jwtService,
+	)
 
 	// Запускаем сервер
 	port := getEnv("SERVER_PORT", "8080")
