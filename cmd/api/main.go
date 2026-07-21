@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"os"
 	"time"
@@ -13,8 +14,10 @@ import (
 	"github.com/DmitriiCherkasow/synergyconnect.git/internal/application"
 	"github.com/DmitriiCherkasow/synergyconnect.git/internal/domain"
 	"github.com/DmitriiCherkasow/synergyconnect.git/internal/infrastructure/database"
+	"github.com/DmitriiCherkasow/synergyconnect.git/internal/infrastructure/email"
 	"github.com/DmitriiCherkasow/synergyconnect.git/internal/interfaces/http"
 	"github.com/DmitriiCherkasow/synergyconnect.git/internal/interfaces/http/handlers"
+	"github.com/DmitriiCherkasow/synergyconnect.git/internal/worker"
 	"github.com/DmitriiCherkasow/synergyconnect.git/pkg/jwt"
 )
 
@@ -73,7 +76,7 @@ func main() {
 	jwtService := jwt.NewJWTService(jwtConfig)
 
 	// ============================================================
-	// ИНИЦИАЛИЗАЦИЯ РЕПОЗИТОРИЕВ (все)
+	// ИНИЦИАЛИЗАЦИЯ РЕПОЗИТОРИЕВ
 	// ============================================================
 	userRepo := database.NewUserRepository(db)
 	postRepo := database.NewPostRepository(db)
@@ -86,7 +89,8 @@ func main() {
 	boardRepo := database.NewBoardRepository(db)
 	stickerRepo := database.NewStickerRepository(db)
 	reminderRepo := database.NewReminderRepository(db)
-	
+	reminderEmailRepo := database.NewReminderEmailRepository(db) 
+
 	// ============================================================
 	// ИНИЦИАЛИЗАЦИЯ СЕРВИСОВ
 	// ============================================================
@@ -110,7 +114,39 @@ func main() {
 	boardHandler := handlers.NewBoardHandler(boardService, stickerService)
 	stickerHandler := handlers.NewStickerHandler(stickerService)
 
-	// Настраиваем роутер
+	// ============================================================
+	// EMAIL КОНФИГУРАЦИЯ И ВОРКЕР
+	// ============================================================
+	emailConfig := email.Config{
+		Host:     getEnv("SMTP_HOST", "smtp.gmail.com"),
+		Port:     587,
+		Username: getEnv("SMTP_USER", ""),
+		Password: getEnv("SMTP_PASSWORD", ""),
+		From:     getEnv("FROM_EMAIL", ""),
+		FromName: "SynergyConnect",
+		UseTLS:   true,
+	}
+	emailService := email.NewService(emailConfig)
+
+	// Инициализация воркера
+	reminderWorker := worker.NewReminderWorker(
+		reminderRepo,
+		stickerRepo,
+		boardRepo,
+		userRepo,
+		reminderEmailRepo,
+		emailService,
+		1*time.Minute,
+	)
+
+	// Запуск воркера в отдельной горутине
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	go reminderWorker.Start(ctx)
+
+	// ============================================================
+	// НАСТРОЙКА РОУТЕРА И ЗАПУСК СЕРВЕРА
+	// ============================================================
 	r := gin.Default()
 
 	// Настройка маршрутов
@@ -120,15 +156,27 @@ func main() {
 		postHandler,
 		commentHandler,
 		groupHandler,
-		boardHandler,    // добавляем
-		stickerHandler,  // добавляем
+		boardHandler,
+		stickerHandler,
 		jwtService,
 	)
 
 	// Запускаем сервер
 	port := getEnv("SERVER_PORT", "8080")
 	log.Printf("✅ Server is running on http://localhost:%s", port)
-	log.Fatal(r.Run(":" + port))
+	log.Printf("📧 Reminder worker is running (checking every 1 minute)")
+
+	// Graceful shutdown для воркера при завершении сервера
+	defer func() {
+		log.Println("🛑 Shutting down reminder worker...")
+		cancel()
+		time.Sleep(2 * time.Second)
+		log.Println("✅ Reminder worker stopped")
+	}()
+
+	if err := r.Run(":" + port); err != nil {
+		log.Fatalf("❌ Failed to start server: %v", err)
+	}
 }
 
 // getEnv получает переменную окружения или возвращает значение по умолчанию

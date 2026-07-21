@@ -72,3 +72,4 @@ func (r *Reminder) CreateNextReminder() *Reminder {
 		IsSent:             false,
 	}
 }
+
