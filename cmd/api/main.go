@@ -38,6 +38,17 @@ func main() {
 	}
 	log.Println("✅ Database connected")
 
+	if err := db.AutoMigrate(
+		&domain.User{},
+		&domain.Post{},
+		&domain.Comment{},
+		&domain.Tag{},
+		&domain.Group{},
+		&domain.Subscription{},
+	); err != nil {
+		log.Fatalf("❌ Failed to migrate database: %v", err)
+	}
+
 	// Автомиграция
 	if err := db.AutoMigrate(&domain.User{}); err != nil {
 		log.Fatalf("❌ Failed to migrate database: %v", err)
