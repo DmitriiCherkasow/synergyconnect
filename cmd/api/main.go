@@ -13,8 +13,8 @@ import (
 	"github.com/DmitriiCherkasow/synergyconnect.git/internal/application"
 	"github.com/DmitriiCherkasow/synergyconnect.git/internal/domain"
 	"github.com/DmitriiCherkasow/synergyconnect.git/internal/infrastructure/database"
+	"github.com/DmitriiCherkasow/synergyconnect.git/internal/interfaces/http"
 	"github.com/DmitriiCherkasow/synergyconnect.git/internal/interfaces/http/handlers"
-	"github.com/DmitriiCherkasow/synergyconnect.git/internal/interfaces/http/middleware"
 	"github.com/DmitriiCherkasow/synergyconnect.git/pkg/jwt"
 )
 
@@ -38,6 +38,9 @@ func main() {
 	}
 	log.Println("✅ Database connected")
 
+	// ============================================================
+	// МИГРАЦИИ: Добавляем все модели
+	// ============================================================
 	if err := db.AutoMigrate(
 		&domain.User{},
 		&domain.Post{},
@@ -46,11 +49,6 @@ func main() {
 		&domain.Group{},
 		&domain.Subscription{},
 	); err != nil {
-		log.Fatalf("❌ Failed to migrate database: %v", err)
-	}
-
-	// Автомиграция
-	if err := db.AutoMigrate(&domain.User{}); err != nil {
 		log.Fatalf("❌ Failed to migrate database: %v", err)
 	}
 	log.Println("✅ Database migrated")
@@ -72,49 +70,38 @@ func main() {
 	}
 	jwtService := jwt.NewJWTService(jwtConfig)
 
-	// Инициализируем репозитории и сервисы
+	// ============================================================
+	// ИНИЦИАЛИЗАЦИЯ РЕПОЗИТОРИЕВ
+	// ============================================================
 	userRepo := database.NewUserRepository(db)
-	authService := application.NewAuthService(userRepo, jwtService)
+	postRepo := database.NewPostRepository(db)
+	commentRepo := database.NewCommentRepository(db)
+	groupRepo := database.NewGroupRepository(db)
+	subscriptionRepo := database.NewSubscriptionRepository(db)
+	tagRepo := database.NewTagRepository(db)
 
-	// Инициализируем обработчики
+	// ============================================================
+	// ИНИЦИАЛИЗАЦИЯ СЕРВИСОВ
+	// ============================================================
+	authService := application.NewAuthService(userRepo, jwtService)
+	postService := application.NewPostService(postRepo, commentRepo, tagRepo)
+	groupService := application.NewGroupService(groupRepo, subscriptionRepo)
+
+	// ============================================================
+	// ИНИЦИАЛИЗАЦИЯ ОБРАБОТЧИКОВ
+	// ============================================================
 	authHandler := handlers.NewAuthHandler(authService)
+	postHandler := handlers.NewPostHandler(postService, groupService)
+	commentHandler := handlers.NewCommentHandler(postService)
+	groupHandler := handlers.NewGroupHandler(groupService)
 
 	// Настраиваем роутер
 	r := gin.Default()
 
-	// Health-check
-	r.GET("/health", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"status":  "ok",
-			"service": "synergyconnect",
-			"version": "0.1.0",
-		})
-	})
-
-	// Группа API v1
-	api := r.Group("/api/v1")
-	{
-		// Публичные эндпоинты (без JWT)
-		auth := api.Group("/auth")
-		{
-			auth.POST("/register", authHandler.Register)
-			auth.POST("/login", authHandler.Login)
-			auth.POST("/refresh", authHandler.RefreshToken)
-		}
-
-		// Защищенные эндпоинты (с JWT)
-		protected := api.Group("/")
-		protected.Use(middleware.JWTAuthMiddleware(jwtService))
-		{
-			protected.GET("/profile", func(c *gin.Context) {
-				userID := middleware.GetUserIDFromContext(c)
-				c.JSON(200, gin.H{
-					"message": "Authenticated access",
-					"user_id": userID,
-				})
-			})
-		}
-	}
+	// ============================================================
+	// НАСТРОЙКА МАРШРУТОВ (используем функцию SetupRoutes)
+	// ============================================================
+	http.SetupRoutes(r, authHandler, postHandler, commentHandler, groupHandler, jwtService)
 
 	// Запускаем сервер
 	port := getEnv("SERVER_PORT", "8080")
