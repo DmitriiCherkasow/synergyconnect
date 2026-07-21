@@ -48,6 +48,10 @@ func main() {
 		&domain.Tag{},
 		&domain.Group{},
 		&domain.Subscription{},
+		&domain.Board{},        
+		&domain.Sticker{},      
+		&domain.Reminder{},     
+		&domain.ReminderEmail{}, 
 	); err != nil {
 		log.Fatalf("❌ Failed to migrate database: %v", err)
 	}
