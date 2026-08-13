@@ -22,6 +22,7 @@ import (
 	wsHandlers "github.com/DmitriiCherkasow/synergyconnect.git/internal/interfaces/websocket"
 	"github.com/DmitriiCherkasow/synergyconnect.git/internal/worker"
 	"github.com/DmitriiCherkasow/synergyconnect.git/pkg/jwt"
+	"github.com/DmitriiCherkasow/synergyconnect.git/pkg/totp"
 )
 
 func main() {
@@ -110,6 +111,12 @@ func main() {
 	vacancyRepo := database.NewVacancyRepository(db)
 	messageRepo := database.NewMessageRepository(db)
 	notificationRepo := database.NewNotificationRepository(db)
+	twofaRepo := database.NewTwoFARepository(db)
+
+	// ============================================================
+	// TOTP ПРОВАЙДЕР
+	// ============================================================
+	totpProvider := totp.NewTOTPProvider("SynergyConnect")
 
 	// ============================================================
 	// ИНИЦИАЛИЗАЦИЯ СЕРВИСОВ
@@ -130,6 +137,7 @@ func main() {
 	vacancyService := application.NewVacancyService(vacancyRepo)
 	chatService := application.NewChatService(messageRepo, userRepo)
 	notificationService := application.NewNotificationService(notificationRepo, userRepo)
+	twofaService := application.NewTwoFAService(twofaRepo, userRepo, totpProvider)
 
 	// ============================================================
 	// WebSocket HUB
@@ -157,6 +165,7 @@ func main() {
 	vacancyHandler := handlers.NewVacancyHandler(vacancyService)
 	chatHandler := handlers.NewChatHandler(chatService)
 	notificationHandler := handlers.NewNotificationHandler(notificationService)
+	twofaHandler := handlers.NewTwoFAHandler(twofaService)
 
 	// WebSocket обработчик (создаём, но пока не используем в роутах)
 	_ = wsHandlers.NewChatWebSocketHandler(wsHub, chatService)
@@ -210,7 +219,9 @@ func main() {
 		vacancyHandler,
 		chatHandler,
 		notificationHandler,
+		twofaHandler,
 		jwtService,
+		twofaService,
 	)
 
 	// WebSocket эндпоинт (добавляем отдельно)

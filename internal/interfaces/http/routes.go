@@ -3,6 +3,7 @@ package http
 import (
 	"github.com/gin-gonic/gin"
 
+	"github.com/DmitriiCherkasow/synergyconnect.git/internal/application"
 	"github.com/DmitriiCherkasow/synergyconnect.git/internal/interfaces/http/handlers"
 	"github.com/DmitriiCherkasow/synergyconnect.git/internal/interfaces/http/middleware"
 	"github.com/DmitriiCherkasow/synergyconnect.git/pkg/jwt"
@@ -22,14 +23,16 @@ func SetupRoutes(
 	vacancyHandler *handlers.VacancyHandler,
 	chatHandler *handlers.ChatHandler,
 	notificationHandler *handlers.NotificationHandler,
+	twofaHandler *handlers.TwoFAHandler,
 	jwtService *jwt.JWTService,
+	twofaService *application.TwoFAService,
 ) {
 	// Health-check
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"status":  "ok",
 			"service": "synergyconnect",
-			"version": "0.3.0",
+			"version": "0.4.0",
 		})
 	})
 
@@ -109,13 +112,9 @@ func SetupRoutes(
 			protected.GET("/projects/:id", projectHandler.GetProject)
 			protected.PUT("/projects/:id", projectHandler.UpdateProject)
 			protected.DELETE("/projects/:id", projectHandler.DeleteProject)
-
-			// Участники проектов
 			protected.GET("/projects/:id/members", projectHandler.GetProjectMembers)
 			protected.POST("/projects/:id/members", projectHandler.AddMember)
 			protected.DELETE("/projects/:id/members/:userId", projectHandler.RemoveMember)
-
-			// Заявки на вступление
 			protected.POST("/projects/:id/applications", projectHandler.CreateApplication)
 			protected.PUT("/projects/:id/applications/:applicationId", projectHandler.UpdateApplication)
 
@@ -128,8 +127,6 @@ func SetupRoutes(
 			protected.GET("/vacancies/:id", vacancyHandler.GetVacancy)
 			protected.PUT("/vacancies/:id", vacancyHandler.UpdateVacancy)
 			protected.DELETE("/vacancies/:id", vacancyHandler.DeleteVacancy)
-
-			// Отклики на вакансии
 			protected.POST("/vacancies/:id/responses", vacancyHandler.CreateResponse)
 			protected.PUT("/vacancies/responses/:responseId", vacancyHandler.UpdateResponse)
 			protected.GET("/vacancies/responses/my", vacancyHandler.GetMyResponses)
@@ -145,12 +142,6 @@ func SetupRoutes(
 			protected.DELETE("/chat/messages/:id", chatHandler.DeleteMessage)
 
 			// ============================================
-			// WebSocket для чата (отдельный эндпоинт)
-			// ============================================
-			// WebSocket обрабатывается отдельно через gin
-			// protected.GET("/ws/chat", chatWebSocketHandler.HandleWebSocket)
-
-			// ============================================
 			// Уведомления (Notifications)
 			// ============================================
 			protected.GET("/notifications", notificationHandler.GetNotifications)
@@ -159,6 +150,35 @@ func SetupRoutes(
 			protected.PUT("/notifications/read/all", notificationHandler.MarkAllAsRead)
 			protected.DELETE("/notifications/:id", notificationHandler.DeleteNotification)
 			protected.DELETE("/notifications", notificationHandler.DeleteAllNotifications)
+
+			// ============================================
+			// 2FA
+			// ============================================
+			protected.POST("/2fa/initiate", twofaHandler.Initiate2FA)
+			protected.POST("/2fa/enable", twofaHandler.Enable2FA)
+			protected.POST("/2fa/disable", twofaHandler.Disable2FA)
+			protected.POST("/2fa/verify", twofaHandler.VerifyCode)
+			protected.GET("/2fa/status", twofaHandler.Status)
+			protected.GET("/2fa/recovery-codes", twofaHandler.GetRecoveryCodes)
+			protected.POST("/2fa/recovery-codes/regenerate", twofaHandler.RegenerateRecoveryCodes)
+
+			// ============================================
+			// Защищённые эндпоинты (требуют 2FA)
+			// ============================================
+			secure := protected.Group("/secure")
+			secure.Use(middleware.Require2FA(twofaService))
+			{
+				// Здесь эндпоинты, которые требуют 2FA
+				// Например, смена пароля, удаление аккаунта и т.д.
+				secure.GET("/profile/secure", func(c *gin.Context) {
+					userID := middleware.GetUserIDFromContext(c)
+					c.JSON(200, gin.H{
+						"message":    "Secure endpoint with 2FA",
+						"user_id":    userID,
+						"2fa_verified": true,
+					})
+				})
+			}
 
 			// ============================================
 			// Профиль

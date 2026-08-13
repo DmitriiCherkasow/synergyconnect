@@ -93,6 +93,10 @@ type NotificationRepository interface {
 type TwoFARepository interface {
     CreateOrUpdate(ctx context.Context, twofa *UserTwoFA) error
     GetByUserID(ctx context.Context, userID uuid.UUID) (*UserTwoFA, error)
+    Enable(ctx context.Context, userID uuid.UUID, secret string) error
+    Disable(ctx context.Context, userID uuid.UUID) error
+    IsEnabled(ctx context.Context, userID uuid.UUID) (bool, error)
+    UpdateRecoveryCodes(ctx context.Context, userID uuid.UUID, codes []string) error
     Delete(ctx context.Context, userID uuid.UUID) error
 }
 
