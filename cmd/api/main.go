@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log"
+	"net/http"
 	"os"
 	"time"
 
@@ -15,8 +16,10 @@ import (
 	"github.com/DmitriiCherkasow/synergyconnect.git/internal/domain"
 	"github.com/DmitriiCherkasow/synergyconnect.git/internal/infrastructure/database"
 	"github.com/DmitriiCherkasow/synergyconnect.git/internal/infrastructure/email"
-	"github.com/DmitriiCherkasow/synergyconnect.git/internal/interfaces/http"
+	ws "github.com/DmitriiCherkasow/synergyconnect.git/internal/infrastructure/websocket"
+	httpRoutes "github.com/DmitriiCherkasow/synergyconnect.git/internal/interfaces/http"
 	"github.com/DmitriiCherkasow/synergyconnect.git/internal/interfaces/http/handlers"
+	wsHandlers "github.com/DmitriiCherkasow/synergyconnect.git/internal/interfaces/websocket"
 	"github.com/DmitriiCherkasow/synergyconnect.git/internal/worker"
 	"github.com/DmitriiCherkasow/synergyconnect.git/pkg/jwt"
 )
@@ -53,7 +56,6 @@ func main() {
 		&domain.Sticker{},
 		&domain.Reminder{},
 		&domain.ReminderEmail{},
-		// Новые сущности для Спринта 3
 		&domain.Project{},
 		&domain.ProjectMember{},
 		&domain.ProjectApplication{},
@@ -102,10 +104,12 @@ func main() {
 	reminderEmailRepo := database.NewReminderEmailRepository(db)
 
 	// ============================================================
-	// НОВЫЕ РЕПОЗИТОРИИ ДЛЯ СПРИНТА 3 (пока используем только project)
+	// НОВЫЕ РЕПОЗИТОРИИ ДЛЯ СПРИНТА 3
 	// ============================================================
 	projectRepo := database.NewProjectRepository(db)
 	vacancyRepo := database.NewVacancyRepository(db)
+	messageRepo := database.NewMessageRepository(db)
+	notificationRepo := database.NewNotificationRepository(db)
 
 	// ============================================================
 	// ИНИЦИАЛИЗАЦИЯ СЕРВИСОВ
@@ -113,17 +117,25 @@ func main() {
 	authService := application.NewAuthService(userRepo, jwtService)
 	postService := application.NewPostService(postRepo, commentRepo, tagRepo)
 	groupService := application.NewGroupService(groupRepo, subscriptionRepo)
-	
+
 	// Сервисы для Спринта 2
 	boardService := application.NewBoardService(boardRepo, stickerRepo, reminderRepo)
 	stickerService := application.NewStickerService(stickerRepo, boardRepo, reminderRepo)
 	reminderService := application.NewReminderService(reminderRepo, stickerRepo)
 
 	// ============================================================
-	// НОВЫЙ СЕРВИС ДЛЯ СПРИНТА 3
+	// НОВЫЕ СЕРВИСЫ ДЛЯ СПРИНТА 3
 	// ============================================================
 	projectService := application.NewProjectService(projectRepo)
 	vacancyService := application.NewVacancyService(vacancyRepo)
+	chatService := application.NewChatService(messageRepo, userRepo)
+	notificationService := application.NewNotificationService(notificationRepo, userRepo)
+
+	// ============================================================
+	// WebSocket HUB
+	// ============================================================
+	wsHub := ws.NewHub()
+	go wsHub.Run()
 
 	// ============================================================
 	// ИНИЦИАЛИЗАЦИЯ ОБРАБОТЧИКОВ
@@ -139,10 +151,15 @@ func main() {
 	reminderHandler := handlers.NewReminderHandler(reminderService)
 
 	// ============================================================
-	// НОВЫЙ ОБРАБОТЧИК ДЛЯ СПРИНТА 3
+	// НОВЫЕ ОБРАБОТЧИКИ ДЛЯ СПРИНТА 3
 	// ============================================================
 	projectHandler := handlers.NewProjectHandler(projectService)
 	vacancyHandler := handlers.NewVacancyHandler(vacancyService)
+	chatHandler := handlers.NewChatHandler(chatService)
+	notificationHandler := handlers.NewNotificationHandler(notificationService)
+
+	// WebSocket обработчик (создаём, но пока не используем в роутах)
+	_ = wsHandlers.NewChatWebSocketHandler(wsHub, chatService)
 
 	// ============================================================
 	// EMAIL КОНФИГУРАЦИЯ И ВОРКЕР
@@ -180,7 +197,7 @@ func main() {
 	r := gin.Default()
 
 	// Настройка маршрутов
-	http.SetupRoutes(
+	httpRoutes.SetupRoutes( 
 		r,
 		authHandler,
 		postHandler,
@@ -191,8 +208,15 @@ func main() {
 		reminderHandler,
 		projectHandler,
 		vacancyHandler,
+		chatHandler,
+		notificationHandler,
 		jwtService,
 	)
+
+	// WebSocket эндпоинт (добавляем отдельно)
+	r.GET("/ws/chat", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{"message": "WebSocket endpoint"})
+	})
 
 	// Запускаем сервер
 	port := getEnv("SERVER_PORT", "8080")

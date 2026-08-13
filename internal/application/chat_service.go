@@ -136,3 +136,8 @@ func (s *ChatService) DeleteMessage(ctx context.Context, messageID uuid.UUID, us
 
 	return s.messageRepo.Delete(ctx, messageID)
 }
+
+// GetMessage возвращает сообщение по ID
+func (s *ChatService) GetMessage(ctx context.Context, id uuid.UUID) (*domain.Message, error) {
+	return s.messageRepo.GetByID(ctx, id)
+}

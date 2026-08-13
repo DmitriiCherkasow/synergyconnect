@@ -82,6 +82,7 @@ type NotificationRepository interface {
     GetByID(ctx context.Context, id uuid.UUID) (*Notification, error)
     GetByUser(ctx context.Context, userID uuid.UUID, limit, offset int) ([]Notification, int64, error)
     GetUnreadByUser(ctx context.Context, userID uuid.UUID) ([]Notification, error)
+    GetUnreadCount(ctx context.Context, userID uuid.UUID) (int64, error)
     MarkAsRead(ctx context.Context, id uuid.UUID) error
     MarkAllAsRead(ctx context.Context, userID uuid.UUID) error
     Delete(ctx context.Context, id uuid.UUID) error

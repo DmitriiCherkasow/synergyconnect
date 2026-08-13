@@ -20,6 +20,8 @@ func SetupRoutes(
 	reminderHandler *handlers.ReminderHandler,
 	projectHandler *handlers.ProjectHandler,
 	vacancyHandler *handlers.VacancyHandler,
+	chatHandler *handlers.ChatHandler,
+	notificationHandler *handlers.NotificationHandler,
 	jwtService *jwt.JWTService,
 ) {
 	// Health-check
@@ -131,6 +133,32 @@ func SetupRoutes(
 			protected.POST("/vacancies/:id/responses", vacancyHandler.CreateResponse)
 			protected.PUT("/vacancies/responses/:responseId", vacancyHandler.UpdateResponse)
 			protected.GET("/vacancies/responses/my", vacancyHandler.GetMyResponses)
+
+			// ============================================
+			// Чат (Chat)
+			// ============================================
+			protected.POST("/chat/messages", chatHandler.SendMessage)
+			protected.GET("/chat/messages/:userId", chatHandler.GetConversation)
+			protected.GET("/chat/unread/count", chatHandler.GetUnreadCount)
+			protected.PUT("/chat/read", chatHandler.MarkAsRead)
+			protected.GET("/chat/recent", chatHandler.GetRecentChats)
+			protected.DELETE("/chat/messages/:id", chatHandler.DeleteMessage)
+
+			// ============================================
+			// WebSocket для чата (отдельный эндпоинт)
+			// ============================================
+			// WebSocket обрабатывается отдельно через gin
+			// protected.GET("/ws/chat", chatWebSocketHandler.HandleWebSocket)
+
+			// ============================================
+			// Уведомления (Notifications)
+			// ============================================
+			protected.GET("/notifications", notificationHandler.GetNotifications)
+			protected.GET("/notifications/unread/count", notificationHandler.GetUnreadCount)
+			protected.PUT("/notifications/:id/read", notificationHandler.MarkAsRead)
+			protected.PUT("/notifications/read/all", notificationHandler.MarkAllAsRead)
+			protected.DELETE("/notifications/:id", notificationHandler.DeleteNotification)
+			protected.DELETE("/notifications", notificationHandler.DeleteAllNotifications)
 
 			// ============================================
 			// Профиль

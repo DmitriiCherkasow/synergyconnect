@@ -147,3 +147,8 @@ func (c *Client) Close() {
 	close(c.send)
 	c.conn.Close()
 }
+
+// GetUserID возвращает ID пользователя
+func (c *Client) GetUserID() string {
+	return c.userID
+}
