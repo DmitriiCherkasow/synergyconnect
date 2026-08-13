@@ -120,11 +120,11 @@ func main() {
 	// EMAIL КОНФИГУРАЦИЯ И ВОРКЕР
 	// ============================================================
 	emailConfig := email.Config{
-		Host:     getEnv("SMTP_HOST", "smtp.gmail.com"),
-		Port:     587,
+		Host:     getEnv("SMTP_HOST", "localhost"),
+		Port:     1025,
 		Username: getEnv("SMTP_USER", ""),
 		Password: getEnv("SMTP_PASSWORD", ""),
-		From:     getEnv("FROM_EMAIL", ""),
+		From:     getEnv("FROM_EMAIL", "test@synergyconnect.com"),
 		FromName: "SynergyConnect",
 		UseTLS:   false,
 	}
