@@ -45,6 +45,7 @@ type VacancyRepository interface {
     GetResponse(ctx context.Context, id uuid.UUID) (*VacancyResponse, error)
     GetResponsesByVacancy(ctx context.Context, vacancyID uuid.UUID) ([]VacancyResponse, error)
     GetUserResponses(ctx context.Context, userID uuid.UUID) ([]VacancyResponse, error)
+    Search(ctx context.Context, query string, limit, offset int) ([]Vacancy, int64, error)
 }
 
 type VacancyFilter struct {

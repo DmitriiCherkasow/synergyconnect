@@ -18,7 +18,8 @@ func SetupRoutes(
 	boardHandler *handlers.BoardHandler,
 	stickerHandler *handlers.StickerHandler,
 	reminderHandler *handlers.ReminderHandler,
-	projectHandler *handlers.ProjectHandler, // ← НОВЫЙ
+	projectHandler *handlers.ProjectHandler,
+	vacancyHandler *handlers.VacancyHandler,
 	jwtService *jwt.JWTService,
 ) {
 	// Health-check
@@ -99,7 +100,7 @@ func SetupRoutes(
 			protected.PATCH("/reminders/:id/snooze", reminderHandler.SnoozeReminder)
 
 			// ============================================
-			// Проекты (Projects) - НОВЫЙ МОДУЛЬ
+			// Проекты (Projects)
 			// ============================================
 			protected.POST("/projects", projectHandler.CreateProject)
 			protected.GET("/projects", projectHandler.ListProjects)
@@ -115,6 +116,21 @@ func SetupRoutes(
 			// Заявки на вступление
 			protected.POST("/projects/:id/applications", projectHandler.CreateApplication)
 			protected.PUT("/projects/:id/applications/:applicationId", projectHandler.UpdateApplication)
+
+			// ============================================
+			// Вакансии (Vacancies)
+			// ============================================
+			protected.POST("/vacancies", vacancyHandler.CreateVacancy)
+			protected.GET("/vacancies", vacancyHandler.ListVacancies)
+			protected.GET("/vacancies/search", vacancyHandler.SearchVacancies)
+			protected.GET("/vacancies/:id", vacancyHandler.GetVacancy)
+			protected.PUT("/vacancies/:id", vacancyHandler.UpdateVacancy)
+			protected.DELETE("/vacancies/:id", vacancyHandler.DeleteVacancy)
+
+			// Отклики на вакансии
+			protected.POST("/vacancies/:id/responses", vacancyHandler.CreateResponse)
+			protected.PUT("/vacancies/responses/:responseId", vacancyHandler.UpdateResponse)
+			protected.GET("/vacancies/responses/my", vacancyHandler.GetMyResponses)
 
 			// ============================================
 			// Профиль

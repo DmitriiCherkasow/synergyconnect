@@ -105,6 +105,7 @@ func main() {
 	// НОВЫЕ РЕПОЗИТОРИИ ДЛЯ СПРИНТА 3 (пока используем только project)
 	// ============================================================
 	projectRepo := database.NewProjectRepository(db)
+	vacancyRepo := database.NewVacancyRepository(db)
 
 	// ============================================================
 	// ИНИЦИАЛИЗАЦИЯ СЕРВИСОВ
@@ -112,7 +113,7 @@ func main() {
 	authService := application.NewAuthService(userRepo, jwtService)
 	postService := application.NewPostService(postRepo, commentRepo, tagRepo)
 	groupService := application.NewGroupService(groupRepo, subscriptionRepo)
-
+	
 	// Сервисы для Спринта 2
 	boardService := application.NewBoardService(boardRepo, stickerRepo, reminderRepo)
 	stickerService := application.NewStickerService(stickerRepo, boardRepo, reminderRepo)
@@ -122,6 +123,7 @@ func main() {
 	// НОВЫЙ СЕРВИС ДЛЯ СПРИНТА 3
 	// ============================================================
 	projectService := application.NewProjectService(projectRepo)
+	vacancyService := application.NewVacancyService(vacancyRepo)
 
 	// ============================================================
 	// ИНИЦИАЛИЗАЦИЯ ОБРАБОТЧИКОВ
@@ -140,6 +142,7 @@ func main() {
 	// НОВЫЙ ОБРАБОТЧИК ДЛЯ СПРИНТА 3
 	// ============================================================
 	projectHandler := handlers.NewProjectHandler(projectService)
+	vacancyHandler := handlers.NewVacancyHandler(vacancyService)
 
 	// ============================================================
 	// EMAIL КОНФИГУРАЦИЯ И ВОРКЕР
@@ -187,6 +190,7 @@ func main() {
 		stickerHandler,
 		reminderHandler,
 		projectHandler,
+		vacancyHandler,
 		jwtService,
 	)
 
