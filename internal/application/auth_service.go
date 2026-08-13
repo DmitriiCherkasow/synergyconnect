@@ -22,7 +22,7 @@ type UserRepository interface {
 
 // AuthService — сервис для аутентификации
 type AuthService struct {
-	userRepo   UserRepository
+	userRepo   domain.UserRepository
 	jwtService *jwt.JWTService
 }
 

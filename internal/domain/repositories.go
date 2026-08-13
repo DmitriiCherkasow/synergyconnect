@@ -68,9 +68,12 @@ type MessageRepository interface {
     GetByID(ctx context.Context, id uuid.UUID) (*Message, error)
     GetConversation(ctx context.Context, user1ID, user2ID uuid.UUID, limit, offset int) ([]Message, int64, error)
     GetUnreadCount(ctx context.Context, userID uuid.UUID) (int64, error)
+    GetUnreadCountFromUser(ctx context.Context, userID, senderID uuid.UUID) (int64, error)
     MarkAsRead(ctx context.Context, messageID uuid.UUID) error
     MarkAllAsRead(ctx context.Context, userID, senderID uuid.UUID) error
     GetRecentChats(ctx context.Context, userID uuid.UUID, limit int) ([]Message, error)
+    Delete(ctx context.Context, id uuid.UUID) error
+    DeleteConversation(ctx context.Context, user1ID, user2ID uuid.UUID) error
 }
 
 // NotificationRepository defines notification repository interface
@@ -98,4 +101,13 @@ type DeviceRepository interface {
     GetByUserID(ctx context.Context, userID uuid.UUID) ([]UserDevice, error)
     UpdateLastUsed(ctx context.Context, id uuid.UUID) error
     Delete(ctx context.Context, id uuid.UUID) error
+}
+
+// UserRepository defines user repository interface
+type UserRepository interface {
+	Create(ctx context.Context, user *User) error
+	FindByEmail(ctx context.Context, email string) (*User, error)
+	FindByID(ctx context.Context, id uuid.UUID) (*User, error)
+	Update(ctx context.Context, user *User) error
+	UpdateLastLogin(ctx context.Context, userID uuid.UUID) error
 }

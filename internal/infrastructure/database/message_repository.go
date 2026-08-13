@@ -152,3 +152,13 @@ func (r *messageRepository) DeleteConversation(ctx context.Context, user1ID, use
 		).
 		Delete(&domain.Message{}).Error
 }
+
+// GetUnreadCountFromUser implements domain.MessageRepository
+func (r *messageRepository) GetUnreadCountFromUser(ctx context.Context, userID, senderID uuid.UUID) (int64, error) {
+    var count int64
+    err := r.db.WithContext(ctx).
+        Model(&domain.Message{}).
+        Where("receiver_id = ? AND sender_id = ? AND is_read = ?", userID, senderID, false).
+        Count(&count).Error
+    return count, err
+}

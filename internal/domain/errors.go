@@ -11,6 +11,9 @@ var (
     ErrUnauthorized      = errors.New("unauthorized")
     ErrForbidden         = errors.New("forbidden")
     ErrInternal          = errors.New("internal server error")
+
+    // User errors
+    ErrUserNotFound      = errors.New("user not found")
     
     // Project errors
     ErrProjectNotFound   = errors.New("project not found")
