@@ -53,6 +53,16 @@ func main() {
 		&domain.Sticker{},
 		&domain.Reminder{},
 		&domain.ReminderEmail{},
+		// Новые сущности для Спринта 3
+		&domain.Project{},
+		&domain.ProjectMember{},
+		&domain.ProjectApplication{},
+		&domain.Vacancy{},
+		&domain.VacancyResponse{},
+		&domain.Message{},
+		&domain.Notification{},
+		&domain.UserTwoFA{},
+		&domain.UserDevice{},
 	); err != nil {
 		log.Fatalf("❌ Failed to migrate database: %v", err)
 	}
@@ -89,7 +99,12 @@ func main() {
 	boardRepo := database.NewBoardRepository(db)
 	stickerRepo := database.NewStickerRepository(db)
 	reminderRepo := database.NewReminderRepository(db)
-	reminderEmailRepo := database.NewReminderEmailRepository(db) 
+	reminderEmailRepo := database.NewReminderEmailRepository(db)
+
+	// ============================================================
+	// НОВЫЕ РЕПОЗИТОРИИ ДЛЯ СПРИНТА 3 (пока используем только project)
+	// ============================================================
+	projectRepo := database.NewProjectRepository(db)
 
 	// ============================================================
 	// ИНИЦИАЛИЗАЦИЯ СЕРВИСОВ
@@ -104,6 +119,11 @@ func main() {
 	reminderService := application.NewReminderService(reminderRepo, stickerRepo)
 
 	// ============================================================
+	// НОВЫЙ СЕРВИС ДЛЯ СПРИНТА 3
+	// ============================================================
+	projectService := application.NewProjectService(projectRepo)
+
+	// ============================================================
 	// ИНИЦИАЛИЗАЦИЯ ОБРАБОТЧИКОВ
 	// ============================================================
 	authHandler := handlers.NewAuthHandler(authService)
@@ -115,6 +135,11 @@ func main() {
 	boardHandler := handlers.NewBoardHandler(boardService, stickerService)
 	stickerHandler := handlers.NewStickerHandler(stickerService)
 	reminderHandler := handlers.NewReminderHandler(reminderService)
+
+	// ============================================================
+	// НОВЫЙ ОБРАБОТЧИК ДЛЯ СПРИНТА 3
+	// ============================================================
+	projectHandler := handlers.NewProjectHandler(projectService)
 
 	// ============================================================
 	// EMAIL КОНФИГУРАЦИЯ И ВОРКЕР
@@ -161,6 +186,7 @@ func main() {
 		boardHandler,
 		stickerHandler,
 		reminderHandler,
+		projectHandler,
 		jwtService,
 	)
 

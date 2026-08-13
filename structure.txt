@@ -1,0 +1,118 @@
+C:.
+|   .env.example
+|   .gitignore
+|   go.mod
+|   go.sum
+|   Makefile
+|   README.md
+|   structure.txt
+|   
++---.github
+|   \---workflows
+|           ci.yml
+|           
++---cmd
+|   \---api
+|           main.go
+|           
++---docs
++---internal
+|   +---application
+|   |       auth_service.go
+|   |       board_service.go
+|   |       group_service.go
+|   |       post_service.go
+|   |       reminder_service.go
+|   |       sticker_service.go
+|   |       
+|   +---domain
+|   |       board.go
+|   |       comment.go
+|   |       errors.go
+|   |       events.go
+|   |       group.go
+|   |       message.go
+|   |       notification.go
+|   |       post.go
+|   |       post_test.go
+|   |       project.go
+|   |       reminder.go
+|   |       reminder_email.go
+|   |       repositories.go
+|   |       sticker.go
+|   |       subscription.go
+|   |       tag.go
+|   |       twofa.go
+|   |       user.go
+|   |       user_test.go
+|   |       vacancy.go
+|   |       
+|   +---infrastructure
+|   |   +---database
+|   |   |       base_repository.go
+|   |   |       board_repository.go
+|   |   |       comment_repository.go
+|   |   |       device_repository.go
+|   |   |       group_repository.go
+|   |   |       message_repository.go
+|   |   |       notification_repository.go
+|   |   |       post_repository.go
+|   |   |       project_repository.go
+|   |   |       reminder_email_repository.go
+|   |   |       reminder_repository.go
+|   |   |       repositories.go
+|   |   |       sticker_repository.go
+|   |   |       subscription_repository.go
+|   |   |       tag_repository.go
+|   |   |       twofa_repository.go
+|   |   |       user_repository.go
+|   |   |       vacancy_repository.go
+|   |   |       
+|   |   +---email
+|   |   |       smtp.go
+|   |   |       
+|   |   +---migrations
+|   |   |       000004_create_projects_tables.down.sql
+|   |   |       000004_create_projects_tables.up.sql
+|   |   |       
+|   |   \---redis
+|   +---interfaces
+|   |   +---http
+|   |   |   |   routes.go
+|   |   |   |   
+|   |   |   +---dto
+|   |   |   |       auth_dto.go
+|   |   |   |       board_dto.go
+|   |   |   |       post_dto.go
+|   |   |   |       reminder_dto.go
+|   |   |   |       user_dto.go
+|   |   |   |       
+|   |   |   +---handlers
+|   |   |   |       auth_handler.go
+|   |   |   |       board_handler.go
+|   |   |   |       comment_handler.go
+|   |   |   |       group_handler.go
+|   |   |   |       post_handler.go
+|   |   |   |       reminder_handler.go
+|   |   |   |       sticker_handler.go
+|   |   |   |       
+|   |   |   \---middleware
+|   |   |           auth_middleware.go
+|   |   |           
+|   |   \---websocket
+|   \---worker
+|           reminder_worker.go
+|           
++---migrations
++---pkg
+|   +---config
+|   +---crypto
+|   |       password.go
+|   |       password_test.go
+|   |       
+|   +---jwt
+|   |       jwt.go
+|   |       
+|   +---logger
+|   \---utils
+\---scripts

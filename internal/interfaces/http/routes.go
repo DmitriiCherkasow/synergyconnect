@@ -17,7 +17,8 @@ func SetupRoutes(
 	groupHandler *handlers.GroupHandler,
 	boardHandler *handlers.BoardHandler,
 	stickerHandler *handlers.StickerHandler,
-	reminderHandler *handlers.ReminderHandler, // ← ДОБАВИТЬ
+	reminderHandler *handlers.ReminderHandler,
+	projectHandler *handlers.ProjectHandler, // ← НОВЫЙ
 	jwtService *jwt.JWTService,
 ) {
 	// Health-check
@@ -96,6 +97,24 @@ func SetupRoutes(
 			protected.GET("/reminders", reminderHandler.GetUserReminders)
 			protected.DELETE("/reminders/:id", reminderHandler.DeleteReminder)
 			protected.PATCH("/reminders/:id/snooze", reminderHandler.SnoozeReminder)
+
+			// ============================================
+			// Проекты (Projects) - НОВЫЙ МОДУЛЬ
+			// ============================================
+			protected.POST("/projects", projectHandler.CreateProject)
+			protected.GET("/projects", projectHandler.ListProjects)
+			protected.GET("/projects/:id", projectHandler.GetProject)
+			protected.PUT("/projects/:id", projectHandler.UpdateProject)
+			protected.DELETE("/projects/:id", projectHandler.DeleteProject)
+
+			// Участники проектов
+			protected.GET("/projects/:id/members", projectHandler.GetProjectMembers)
+			protected.POST("/projects/:id/members", projectHandler.AddMember)
+			protected.DELETE("/projects/:id/members/:userId", projectHandler.RemoveMember)
+
+			// Заявки на вступление
+			protected.POST("/projects/:id/applications", projectHandler.CreateApplication)
+			protected.PUT("/projects/:id/applications/:applicationId", projectHandler.UpdateApplication)
 
 			// ============================================
 			// Профиль
