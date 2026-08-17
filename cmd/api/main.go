@@ -24,7 +24,7 @@ import (
 	"github.com/DmitriiCherkasow/synergyconnect.git/pkg/jwt"
 	"github.com/DmitriiCherkasow/synergyconnect.git/pkg/totp"
 
-	//_ "github.com/DmitriiCherkasow/synergyconnect.git/docs" // Swagger docs
+	_ "github.com/DmitriiCherkasow/synergyconnect.git/docs" // Swagger docs
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )

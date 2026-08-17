@@ -36,7 +36,7 @@ func NewPostHandler(postService *application.PostService, groupService *applicat
 // @Success 201 {object} dto.PostResponse
 // @Failure 400 {object} map[string]interface{}
 // @Failure 401 {object} map[string]interface{}
-// @Router /api/v1/posts [post]
+// @Router /posts [post]
 func (h *PostHandler) CreatePost(c *gin.Context) {
 	var req dto.CreatePostRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -88,7 +88,7 @@ func (h *PostHandler) CreatePost(c *gin.Context) {
 // @Param id path string true "ID поста"
 // @Success 200 {object} dto.PostResponse
 // @Failure 404 {object} map[string]interface{}
-// @Router /api/v1/posts/{id} [get]
+// @Router /posts/{id} [get]
 func (h *PostHandler) GetPost(c *gin.Context) {
 	postID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -148,7 +148,7 @@ func (h *PostHandler) GetPost(c *gin.Context) {
 // @Success 200 {object} dto.PostResponse
 // @Failure 404 {object} map[string]interface{}
 // @Failure 403 {object} map[string]interface{}
-// @Router /api/v1/posts/{id} [put]
+// @Router /posts/{id} [put]
 func (h *PostHandler) UpdatePost(c *gin.Context) {
 	postID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -215,7 +215,7 @@ func (h *PostHandler) UpdatePost(c *gin.Context) {
 // @Success 204 "No Content"
 // @Failure 404 {object} map[string]interface{}
 // @Failure 403 {object} map[string]interface{}
-// @Router /api/v1/posts/{id} [delete]
+// @Router /posts/{id} [delete]
 func (h *PostHandler) DeletePost(c *gin.Context) {
 	postID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -260,7 +260,7 @@ func (h *PostHandler) DeletePost(c *gin.Context) {
 // @Param limit query int false "Лимит" default(20)
 // @Param offset query int false "Смещение" default(0)
 // @Success 200 {array} dto.PostResponse
-// @Router /api/v1/posts/public [get]
+// @Router /posts/public [get]
 func (h *PostHandler) GetPublicFeed(c *gin.Context) {
 	tagSlug := c.Query("tag")
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))
@@ -292,7 +292,7 @@ func (h *PostHandler) GetPublicFeed(c *gin.Context) {
 // @Param limit query int false "Лимит" default(20)
 // @Param offset query int false "Смещение" default(0)
 // @Success 200 {array} dto.PostResponse
-// @Router /api/v1/posts/feed [get]
+// @Router /posts/feed [get]
 func (h *PostHandler) GetFeed(c *gin.Context) {
 	userIDStr := middleware.GetUserIDFromContext(c)
 	if userIDStr == "" {

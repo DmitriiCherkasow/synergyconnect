@@ -33,7 +33,7 @@ func NewCommentHandler(postService *application.PostService) *CommentHandler {
 // @Param request body object true "Данные комментария"
 // @Success 201 {object} dto.CommentResponse
 // @Failure 400 {object} map[string]interface{}
-// @Router /api/v1/posts/{postId}/comments [post]
+// @Router /posts/{postId}/comments [post]
 func (h *CommentHandler) AddComment(c *gin.Context) {
 	postID, err := uuid.Parse(c.Param("postId"))
 	if err != nil {
@@ -81,7 +81,7 @@ func (h *CommentHandler) AddComment(c *gin.Context) {
 // @Param id path string true "ID комментария"
 // @Success 204 "No Content"
 // @Failure 404 {object} map[string]interface{}
-// @Router /api/v1/comments/{id} [delete]
+// @Router /comments/{id} [delete]
 func (h *CommentHandler) DeleteComment(c *gin.Context) {
 	commentID, err := uuid.Parse(c.Param("id"))
 	if err != nil {

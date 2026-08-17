@@ -34,7 +34,7 @@ func NewStickerHandler(stickerService *application.StickerService) *StickerHandl
 // @Param request body dto.CreateStickerRequest true "Данные стикера"
 // @Success 201 {object} dto.StickerResponse
 // @Failure 400 {object} map[string]interface{}
-// @Router /api/v1/boards/{boardId}/stickers [post]
+// @Router /boards/{boardId}/stickers [post]
 func (h *StickerHandler) CreateSticker(c *gin.Context) {
 	boardID, err := uuid.Parse(c.Param("boardId"))
 	if err != nil {
@@ -107,7 +107,7 @@ func (h *StickerHandler) CreateSticker(c *gin.Context) {
 // @Param id path string true "ID стикера"
 // @Success 200 {object} dto.StickerResponse
 // @Failure 404 {object} map[string]interface{}
-// @Router /api/v1/stickers/{id} [get]
+// @Router /stickers/{id} [get]
 func (h *StickerHandler) GetSticker(c *gin.Context) {
 	stickerID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -138,7 +138,7 @@ func (h *StickerHandler) GetSticker(c *gin.Context) {
 // @Success 200 {object} dto.StickerResponse
 // @Failure 404 {object} map[string]interface{}
 // @Failure 403 {object} map[string]interface{}
-// @Router /api/v1/stickers/{id} [put]
+// @Router /stickers/{id} [put]
 func (h *StickerHandler) UpdateSticker(c *gin.Context) {
 	stickerID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -208,7 +208,7 @@ func (h *StickerHandler) UpdateSticker(c *gin.Context) {
 // @Success 204 "No Content"
 // @Failure 404 {object} map[string]interface{}
 // @Failure 403 {object} map[string]interface{}
-// @Router /api/v1/stickers/{id} [delete]
+// @Router /stickers/{id} [delete]
 func (h *StickerHandler) DeleteSticker(c *gin.Context) {
 	stickerID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -251,7 +251,7 @@ func (h *StickerHandler) DeleteSticker(c *gin.Context) {
 // @Param id path string true "ID стикера"
 // @Success 200 {object} dto.StickerResponse
 // @Failure 404 {object} map[string]interface{}
-// @Router /api/v1/stickers/{id}/toggle-complete [patch]
+// @Router /stickers/{id}/toggle-complete [patch]
 func (h *StickerHandler) ToggleComplete(c *gin.Context) {
 	stickerID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -298,7 +298,7 @@ func (h *StickerHandler) ToggleComplete(c *gin.Context) {
 // @Param request body dto.UpdateStickerPositionRequest true "Новая позиция"
 // @Success 200 {object} dto.StickerResponse
 // @Failure 404 {object} map[string]interface{}
-// @Router /api/v1/stickers/{id}/position [patch]
+// @Router /stickers/{id}/position [patch]
 func (h *StickerHandler) UpdatePosition(c *gin.Context) {
 	stickerID, err := uuid.Parse(c.Param("id"))
 	if err != nil {

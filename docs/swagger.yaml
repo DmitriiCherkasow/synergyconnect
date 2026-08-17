@@ -1,0 +1,1743 @@
+basePath: /api/v1
+definitions:
+  dto.AuthResponse:
+    properties:
+      access_token:
+        type: string
+      expires_in:
+        type: integer
+      refresh_token:
+        type: string
+      user:
+        $ref: '#/definitions/dto.UserResponse'
+    type: object
+  dto.CommentResponse:
+    properties:
+      author:
+        $ref: '#/definitions/dto.UserResponse'
+      content:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  dto.ConversationResponse:
+    properties:
+      messages:
+        items:
+          $ref: '#/definitions/dto.MessageResponse'
+        type: array
+      total:
+        type: integer
+      unread_count:
+        type: integer
+      user:
+        $ref: '#/definitions/dto.UserResponse'
+    type: object
+  dto.CreatePostRequest:
+    properties:
+      category:
+        enum:
+        - announcement
+        - project
+        - question
+        - discussion
+        - event
+        - job
+        type: string
+      content:
+        type: string
+      group_id:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      title:
+        type: string
+      visibility:
+        enum:
+        - public
+        - group
+        - private
+        type: string
+    required:
+    - category
+    - content
+    - title
+    - visibility
+    type: object
+  dto.CreateProjectRequest:
+    properties:
+      description:
+        type: string
+      is_public:
+        type: boolean
+      max_team_size:
+        type: integer
+      tags:
+        items:
+          type: string
+        type: array
+      title:
+        type: string
+    required:
+    - title
+    type: object
+  dto.CreateReminderRequest:
+    properties:
+      recurrence:
+        enum:
+        - one_time
+        - daily
+        - weekly
+        - custom
+        type: string
+      recurrence_interval:
+        type: integer
+      remind_at:
+        type: string
+      warning_minutes:
+        items:
+          type: integer
+        type: array
+    required:
+    - remind_at
+    type: object
+  dto.CreateStickerRequest:
+    properties:
+      color:
+        enum:
+        - yellow
+        - blue
+        - green
+        - red
+        - purple
+        - orange
+        - gray
+        type: string
+      content:
+        type: string
+      due_date:
+        type: string
+      height:
+        type: integer
+      position_x:
+        type: integer
+      position_y:
+        type: integer
+      priority:
+        enum:
+        - low
+        - medium
+        - high
+        - urgent
+        type: string
+      title:
+        type: string
+      width:
+        type: integer
+    required:
+    - content
+    type: object
+  dto.CreateVacancyRequest:
+    properties:
+      company:
+        type: string
+      currency:
+        type: string
+      description:
+        type: string
+      employment_type:
+        type: string
+      experience_level:
+        type: string
+      is_remote:
+        type: boolean
+      location:
+        type: string
+      requirements:
+        type: string
+      salary_max:
+        type: integer
+      salary_min:
+        type: integer
+      title:
+        type: string
+    required:
+    - company
+    - title
+    type: object
+  dto.Disable2FARequest:
+    properties:
+      code:
+        type: string
+    required:
+    - code
+    type: object
+  dto.Enable2FARequest:
+    properties:
+      code:
+        type: string
+    required:
+    - code
+    type: object
+  dto.GroupResponse:
+    properties:
+      children:
+        items:
+          $ref: '#/definitions/dto.GroupResponse'
+        type: array
+      color_hex:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      parent_id:
+        type: string
+      slug:
+        type: string
+      type:
+        type: string
+    type: object
+  dto.Initiate2FAResponse:
+    properties:
+      qr_code:
+        description: base64
+        type: string
+      recovery_codes:
+        items:
+          type: string
+        type: array
+      secret:
+        type: string
+    type: object
+  dto.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  dto.MarkReadRequest:
+    properties:
+      ids:
+        items:
+          type: string
+        type: array
+    type: object
+  dto.MessageResponse:
+    properties:
+      content:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: string
+      is_read:
+        type: boolean
+      read_at:
+        type: string
+      receiver_id:
+        type: string
+      sender_id:
+        type: string
+    type: object
+  dto.PostResponse:
+    properties:
+      author:
+        $ref: '#/definitions/dto.UserResponse'
+      category:
+        type: string
+      comments:
+        items:
+          $ref: '#/definitions/dto.CommentResponse'
+        type: array
+      content:
+        type: string
+      created_at:
+        type: string
+      group:
+        $ref: '#/definitions/dto.GroupResponse'
+      id:
+        type: string
+      is_pinned:
+        type: boolean
+      tags:
+        items:
+          $ref: '#/definitions/dto.TagResponse'
+        type: array
+      title:
+        type: string
+      updated_at:
+        type: string
+      visibility:
+        type: string
+    type: object
+  dto.ProjectApplicationResponse:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      message:
+        type: string
+      status:
+        type: string
+      updated_at:
+        type: string
+      user:
+        $ref: '#/definitions/dto.UserResponse'
+      user_id:
+        type: string
+    type: object
+  dto.ProjectDetailResponse:
+    properties:
+      applications:
+        items:
+          $ref: '#/definitions/dto.ProjectApplicationResponse'
+        type: array
+      can_manage:
+        type: boolean
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      is_member:
+        type: boolean
+      is_owner:
+        type: boolean
+      is_public:
+        type: boolean
+      max_team_size:
+        type: integer
+      member_count:
+        type: integer
+      members:
+        items:
+          $ref: '#/definitions/dto.ProjectMemberResponse'
+        type: array
+      owner:
+        $ref: '#/definitions/dto.UserResponse'
+      owner_id:
+        type: string
+      status:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      title:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  dto.ProjectMemberResponse:
+    properties:
+      joined_at:
+        type: string
+      role:
+        type: string
+      user:
+        $ref: '#/definitions/dto.UserResponse'
+      user_id:
+        type: string
+    type: object
+  dto.ProjectResponse:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      is_public:
+        type: boolean
+      max_team_size:
+        type: integer
+      member_count:
+        type: integer
+      owner:
+        $ref: '#/definitions/dto.UserResponse'
+      owner_id:
+        type: string
+      status:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      title:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  dto.RecentChatResponse:
+    properties:
+      last_message:
+        $ref: '#/definitions/dto.MessageResponse'
+      unread_count:
+        type: integer
+      user:
+        $ref: '#/definitions/dto.UserResponse'
+    type: object
+  dto.RecentChatsResponse:
+    properties:
+      chats:
+        items:
+          $ref: '#/definitions/dto.RecentChatResponse'
+        type: array
+    type: object
+  dto.RefreshTokenRequest:
+    properties:
+      refresh_token:
+        type: string
+    type: object
+  dto.RegenerateCodesRequest:
+    properties:
+      code:
+        type: string
+    required:
+    - code
+    type: object
+  dto.RegisterRequest:
+    properties:
+      email:
+        type: string
+      first_name:
+        type: string
+      last_name:
+        type: string
+      password:
+        type: string
+    type: object
+  dto.ReminderResponse:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      is_sent:
+        type: boolean
+      recurrence:
+        type: string
+      recurrence_interval:
+        type: integer
+      remind_at:
+        type: string
+      sent_at:
+        type: string
+      sticker_id:
+        type: string
+      sticker_title:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: string
+      warning_minutes:
+        items:
+          type: integer
+        type: array
+    type: object
+  dto.SendMessageRequest:
+    properties:
+      content:
+        type: string
+      receiver_id:
+        type: string
+    required:
+    - content
+    - receiver_id
+    type: object
+  dto.SnoozeReminderRequest:
+    properties:
+      minutes:
+        description: от 1 минуты до 24 часов
+        maximum: 1440
+        minimum: 1
+        type: integer
+    required:
+    - minutes
+    type: object
+  dto.StickerResponse:
+    properties:
+      author:
+        $ref: '#/definitions/dto.UserResponse'
+      board_id:
+        type: string
+      color:
+        type: string
+      content:
+        type: string
+      created_at:
+        type: string
+      due_date:
+        type: string
+      height:
+        type: integer
+      id:
+        type: string
+      is_completed:
+        type: boolean
+      position_x:
+        type: integer
+      position_y:
+        type: integer
+      priority:
+        type: string
+      title:
+        type: string
+      updated_at:
+        type: string
+      width:
+        type: integer
+    type: object
+  dto.TagResponse:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      slug:
+        type: string
+    type: object
+  dto.UpdatePostRequest:
+    properties:
+      category:
+        enum:
+        - announcement
+        - project
+        - question
+        - discussion
+        - event
+        - job
+        type: string
+      content:
+        type: string
+      title:
+        type: string
+      visibility:
+        enum:
+        - public
+        - group
+        - private
+        type: string
+    type: object
+  dto.UpdateStickerPositionRequest:
+    properties:
+      position_x:
+        type: integer
+      position_y:
+        type: integer
+    required:
+    - position_x
+    - position_y
+    type: object
+  dto.UpdateStickerRequest:
+    properties:
+      color:
+        enum:
+        - yellow
+        - blue
+        - green
+        - red
+        - purple
+        - orange
+        - gray
+        type: string
+      content:
+        type: string
+      due_date:
+        type: string
+      height:
+        type: integer
+      priority:
+        enum:
+        - low
+        - medium
+        - high
+        - urgent
+        type: string
+      title:
+        type: string
+      width:
+        type: integer
+    type: object
+  dto.UserListResponse:
+    properties:
+      total:
+        type: integer
+      users:
+        items:
+          $ref: '#/definitions/dto.UserResponse'
+        type: array
+    type: object
+  dto.UserResponse:
+    properties:
+      avatar_url:
+        type: string
+      bio:
+        type: string
+      email:
+        type: string
+      first_name:
+        type: string
+      id:
+        type: string
+      is_active:
+        type: boolean
+      is_verified:
+        type: boolean
+      last_name:
+        type: string
+      role:
+        type: string
+    type: object
+  dto.VacancyResponse:
+    properties:
+      company:
+        type: string
+      created_at:
+        type: string
+      currency:
+        type: string
+      description:
+        type: string
+      employer:
+        $ref: '#/definitions/dto.UserResponse'
+      employer_id:
+        type: string
+      employment_type:
+        type: string
+      experience_level:
+        type: string
+      id:
+        type: string
+      is_remote:
+        type: boolean
+      location:
+        type: string
+      requirements:
+        type: string
+      responses_count:
+        type: integer
+      salary_max:
+        type: integer
+      salary_min:
+        type: integer
+      status:
+        type: string
+      title:
+        type: string
+      updated_at:
+        type: string
+      views_count:
+        type: integer
+    type: object
+  dto.Verify2FARequest:
+    properties:
+      code:
+        type: string
+    required:
+    - code
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: support@synergyconnect.com
+    name: API Support
+  description: Университетская социальная сеть с полным набором функций
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: https://synergyconnect.com/terms
+  title: SynergyConnect API
+  version: 1.0.0
+paths:
+  /2fa/disable:
+    post:
+      consumes:
+      - application/json
+      description: Отключает 2FA после проверки кода
+      parameters:
+      - description: Код подтверждения
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.Disable2FARequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Отключение 2FA
+      tags:
+      - 2fa
+  /2fa/enable:
+    post:
+      consumes:
+      - application/json
+      description: Подтверждает код и включает 2FA
+      parameters:
+      - description: Код подтверждения
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.Enable2FARequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Включение 2FA
+      tags:
+      - 2fa
+  /2fa/initiate:
+    post:
+      description: Генерирует секрет и QR-код для Google Authenticator
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Initiate2FAResponse'
+      security:
+      - BearerAuth: []
+      summary: Инициализация 2FA
+      tags:
+      - 2fa
+  /2fa/recovery-codes:
+    get:
+      description: Возвращает коды восстановления
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              items:
+                type: string
+              type: array
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Получение кодов восстановления
+      tags:
+      - 2fa
+  /2fa/recovery-codes/regenerate:
+    post:
+      consumes:
+      - application/json
+      description: Генерирует новые коды восстановления
+      parameters:
+      - description: Код подтверждения
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RegenerateCodesRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              items:
+                type: string
+              type: array
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Перегенерация кодов восстановления
+      tags:
+      - 2fa
+  /2fa/status:
+    get:
+      description: Проверяет, включена ли 2FA для пользователя
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: boolean
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Статус 2FA
+      tags:
+      - 2fa
+  /2fa/verify:
+    post:
+      consumes:
+      - application/json
+      description: Проверяет правильность кода без изменения статуса
+      parameters:
+      - description: Код для проверки
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.Verify2FARequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: boolean
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Проверка TOTP кода
+      tags:
+      - 2fa
+  /admin/users:
+    get:
+      parameters:
+      - default: 20
+        description: Лимит
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Смещение
+        in: query
+        name: offset
+        type: integer
+      - description: Поиск
+        in: query
+        name: search
+        type: string
+      - description: Роль
+        in: query
+        name: role
+        type: string
+      - description: Активен
+        in: query
+        name: is_active
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.UserListResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Список пользователей
+      tags:
+      - admin
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Аутентификация и выдача JWT-токенов
+      parameters:
+      - description: Данные для входа
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.AuthResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Вход пользователя
+      tags:
+      - auth
+  /auth/refresh:
+    post:
+      consumes:
+      - application/json
+      description: Использует refresh-токен для получения новой пары токенов
+      parameters:
+      - description: Refresh token
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RefreshTokenRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Обновление access-токена
+      tags:
+      - auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Создает нового пользователя с ролью "student"
+      parameters:
+      - description: Данные для регистрации
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.AuthResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Регистрация нового пользователя
+      tags:
+      - auth
+  /boards/{boardId}/stickers:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID доски
+        in: path
+        name: boardId
+        required: true
+        type: string
+      - description: Данные стикера
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateStickerRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.StickerResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Создать стикер
+      tags:
+      - stickers
+  /chat/messages:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Данные сообщения
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.SendMessageRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.MessageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Отправка сообщения
+      tags:
+      - chat
+  /chat/messages/{id}:
+    delete:
+      parameters:
+      - description: ID сообщения
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: Удаление сообщения
+      tags:
+      - chat
+  /chat/messages/{userId}:
+    get:
+      parameters:
+      - description: ID пользователя
+        in: path
+        name: userId
+        required: true
+        type: string
+      - default: 50
+        description: Лимит
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Смещение
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ConversationResponse'
+      security:
+      - BearerAuth: []
+      summary: Получение переписки
+      tags:
+      - chat
+  /chat/read:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Данные для отметки
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.MarkReadRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Отметить сообщение как прочитанное
+      tags:
+      - chat
+  /chat/recent:
+    get:
+      parameters:
+      - default: 20
+        description: Лимит
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.RecentChatsResponse'
+      security:
+      - BearerAuth: []
+      summary: Получение последних чатов
+      tags:
+      - chat
+  /chat/unread/count:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              format: int64
+              type: integer
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Количество непрочитанных сообщений
+      tags:
+      - chat
+  /comments/{id}:
+    delete:
+      parameters:
+      - description: ID комментария
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Удалить комментарий
+      tags:
+      - comments
+  /groups/{id}/subscribe:
+    post:
+      parameters:
+      - description: ID группы
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Подписаться на группу
+      tags:
+      - groups
+  /groups/{id}/unsubscribe:
+    delete:
+      parameters:
+      - description: ID группы
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Отписаться от группы
+      tags:
+      - groups
+  /groups/tree:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.GroupResponse'
+            type: array
+      summary: Получить дерево групп
+      tags:
+      - groups
+  /posts:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Данные поста
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreatePostRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.PostResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Создать пост
+      tags:
+      - posts
+  /posts/{id}:
+    delete:
+      parameters:
+      - description: ID поста
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Удалить пост
+      tags:
+      - posts
+    get:
+      parameters:
+      - description: ID поста
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.PostResponse'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Получить пост
+      tags:
+      - posts
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID поста
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Данные для обновления
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdatePostRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.PostResponse'
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Обновить пост
+      tags:
+      - posts
+  /posts/{postId}/comments:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID поста
+        in: path
+        name: postId
+        required: true
+        type: string
+      - description: Данные комментария
+        in: body
+        name: request
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.CommentResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Добавить комментарий
+      tags:
+      - comments
+  /posts/feed:
+    get:
+      parameters:
+      - default: 20
+        description: Лимит
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Смещение
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.PostResponse'
+            type: array
+      summary: Получить ленту подписок
+      tags:
+      - posts
+  /posts/public:
+    get:
+      parameters:
+      - description: Фильтр по тегу
+        in: query
+        name: tag
+        type: string
+      - default: 20
+        description: Лимит
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Смещение
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.PostResponse'
+            type: array
+      summary: Получить публичную ленту
+      tags:
+      - posts
+  /projects:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Данные для создания проекта
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateProjectRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.ProjectResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Создание проекта
+      tags:
+      - projects
+  /projects/{id}:
+    get:
+      parameters:
+      - description: ID проекта
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ProjectDetailResponse'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Получение проекта
+      tags:
+      - projects
+  /reminders:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.ReminderResponse'
+            type: array
+      summary: Получить все напоминания пользователя
+      tags:
+      - reminders
+  /reminders/{id}:
+    delete:
+      parameters:
+      - description: ID напоминания
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Удалить напоминание
+      tags:
+      - reminders
+  /reminders/{id}/snooze:
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID напоминания
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Данные для откладывания
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.SnoozeReminderRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ReminderResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Отложить напоминание
+      tags:
+      - reminders
+  /stickers/{id}:
+    delete:
+      parameters:
+      - description: ID стикера
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Удалить стикер
+      tags:
+      - stickers
+    get:
+      parameters:
+      - description: ID стикера
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.StickerResponse'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Получить стикер
+      tags:
+      - stickers
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID стикера
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Данные для обновления
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateStickerRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.StickerResponse'
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Обновить стикер
+      tags:
+      - stickers
+  /stickers/{id}/position:
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID стикера
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Новая позиция
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateStickerPositionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.StickerResponse'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Обновить позицию стикера
+      tags:
+      - stickers
+  /stickers/{id}/toggle-complete:
+    patch:
+      parameters:
+      - description: ID стикера
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.StickerResponse'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Переключить статус выполнения
+      tags:
+      - stickers
+  /stickers/{stickerId}/reminders:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID стикера
+        in: path
+        name: stickerId
+        required: true
+        type: string
+      - description: Данные напоминания
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateReminderRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.ReminderResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Создать напоминание
+      tags:
+      - reminders
+  /vacancies:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Данные для создания вакансии
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateVacancyRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.VacancyResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Создание вакансии
+      tags:
+      - vacancies
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by a space and JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

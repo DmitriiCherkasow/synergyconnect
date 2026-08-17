@@ -28,7 +28,7 @@ func NewGroupHandler(groupService *application.GroupService) *GroupHandler {
 // @Tags groups
 // @Produce json
 // @Success 200 {object} []dto.GroupResponse
-// @Router /api/v1/groups/tree [get]
+// @Router /groups/tree [get]
 func (h *GroupHandler) GetGroupTree(c *gin.Context) {
 	tree, err := h.groupService.GetGroupTree(c.Request.Context())
 	if err != nil {
@@ -49,7 +49,7 @@ func (h *GroupHandler) GetGroupTree(c *gin.Context) {
 // @Tags groups
 // @Param id path string true "ID группы"
 // @Success 200 {object} map[string]interface{}
-// @Router /api/v1/groups/{id}/subscribe [post]
+// @Router /groups/{id}/subscribe [post]
 func (h *GroupHandler) SubscribeToGroup(c *gin.Context) {
 	groupID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -86,7 +86,7 @@ func (h *GroupHandler) SubscribeToGroup(c *gin.Context) {
 // @Tags groups
 // @Param id path string true "ID группы"
 // @Success 200 {object} map[string]interface{}
-// @Router /api/v1/groups/{id}/unsubscribe [delete]
+// @Router /groups/{id}/unsubscribe [delete]
 func (h *GroupHandler) UnsubscribeFromGroup(c *gin.Context) {
 	groupID, err := uuid.Parse(c.Param("id"))
 	if err != nil {

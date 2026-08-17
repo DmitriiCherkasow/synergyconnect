@@ -35,7 +35,7 @@ func NewReminderHandler(reminderService *application.ReminderService) *ReminderH
 // @Success 201 {object} dto.ReminderResponse
 // @Failure 400 {object} map[string]interface{}
 // @Failure 404 {object} map[string]interface{}
-// @Router /api/v1/stickers/{stickerId}/reminders [post]
+// @Router /stickers/{stickerId}/reminders [post]
 func (h *ReminderHandler) CreateReminder(c *gin.Context) {
 	stickerID, err := uuid.Parse(c.Param("stickerId"))
 	if err != nil {
@@ -114,7 +114,7 @@ func (h *ReminderHandler) CreateReminder(c *gin.Context) {
 // @Tags reminders
 // @Produce json
 // @Success 200 {array} dto.ReminderResponse
-// @Router /api/v1/reminders [get]
+// @Router /reminders [get]
 func (h *ReminderHandler) GetUserReminders(c *gin.Context) {
 	userIDStr := middleware.GetUserIDFromContext(c)
 	if userIDStr == "" {
@@ -154,7 +154,7 @@ func (h *ReminderHandler) GetUserReminders(c *gin.Context) {
 // @Success 204 "No Content"
 // @Failure 404 {object} map[string]interface{}
 // @Failure 403 {object} map[string]interface{}
-// @Router /api/v1/reminders/{id} [delete]
+// @Router /reminders/{id} [delete]
 func (h *ReminderHandler) DeleteReminder(c *gin.Context) {
 	reminderID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -200,7 +200,7 @@ func (h *ReminderHandler) DeleteReminder(c *gin.Context) {
 // @Success 200 {object} dto.ReminderResponse
 // @Failure 400 {object} map[string]interface{}
 // @Failure 404 {object} map[string]interface{}
-// @Router /api/v1/reminders/{id}/snooze [patch]
+// @Router /reminders/{id}/snooze [patch]
 func (h *ReminderHandler) SnoozeReminder(c *gin.Context) {
 	reminderID, err := uuid.Parse(c.Param("id"))
 	if err != nil {

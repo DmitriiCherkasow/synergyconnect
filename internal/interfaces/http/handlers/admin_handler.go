@@ -33,7 +33,20 @@ func (h *AdminHandler) getUserID(c *gin.Context) (uuid.UUID, error) {
 	return uuid.Parse(userIDStr)
 }
 
-// GetUsers — список пользователей
+// GetUsers — список пользователей (админ)
+// @Summary Список пользователей
+// @Tags admin
+// @Security BearerAuth
+// @Produce json
+// @Param limit query int false "Лимит" default(20)
+// @Param offset query int false "Смещение" default(0)
+// @Param search query string false "Поиск"
+// @Param role query string false "Роль"
+// @Param is_active query bool false "Активен"
+// @Success 200 {object} dto.UserListResponse
+// @Failure 401 {object} map[string]interface{}
+// @Failure 403 {object} map[string]interface{}
+// @Router /admin/users [get]
 func (h *AdminHandler) GetUsers(c *gin.Context) {
 	actorID, err := h.getUserID(c)
 	if err != nil || actorID == uuid.Nil {

@@ -34,6 +34,16 @@ func (h *ProjectHandler) getUserID(c *gin.Context) (uuid.UUID, error) {
 }
 
 // CreateProject — создание проекта
+// @Summary Создание проекта
+// @Tags projects
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param request body dto.CreateProjectRequest true "Данные для создания проекта"
+// @Success 201 {object} dto.ProjectResponse
+// @Failure 400 {object} map[string]interface{}
+// @Failure 401 {object} map[string]interface{}
+// @Router /projects [post]
 func (h *ProjectHandler) CreateProject(c *gin.Context) {
 	userID, err := h.getUserID(c)
 	if err != nil || userID == uuid.Nil {
@@ -68,6 +78,14 @@ func (h *ProjectHandler) CreateProject(c *gin.Context) {
 }
 
 // GetProject — получение проекта по ID
+// @Summary Получение проекта
+// @Tags projects
+// @Security BearerAuth
+// @Produce json
+// @Param id path string true "ID проекта"
+// @Success 200 {object} dto.ProjectDetailResponse
+// @Failure 404 {object} map[string]interface{}
+// @Router /projects/{id} [get]
 func (h *ProjectHandler) GetProject(c *gin.Context) {
 	userID, err := h.getUserID(c)
 	if err != nil || userID == uuid.Nil {

@@ -40,7 +40,7 @@ func (h *TwoFAHandler) getUserID(c *gin.Context) (uuid.UUID, error) {
 // @Security BearerAuth
 // @Produce json
 // @Success 200 {object} dto.Initiate2FAResponse
-// @Router /api/v1/2fa/initiate [post]
+// @Router /2fa/initiate [post]
 func (h *TwoFAHandler) Initiate2FA(c *gin.Context) {
 	userID, err := h.getUserID(c)
 	if err != nil || userID == uuid.Nil {
@@ -81,7 +81,7 @@ func (h *TwoFAHandler) Initiate2FA(c *gin.Context) {
 // @Produce json
 // @Param request body dto.Enable2FARequest true "Код подтверждения"
 // @Success 200 {object} map[string]string
-// @Router /api/v1/2fa/enable [post]
+// @Router /2fa/enable [post]
 func (h *TwoFAHandler) Enable2FA(c *gin.Context) {
 	userID, err := h.getUserID(c)
 	if err != nil || userID == uuid.Nil {
@@ -121,7 +121,7 @@ func (h *TwoFAHandler) Enable2FA(c *gin.Context) {
 // @Produce json
 // @Param request body dto.Disable2FARequest true "Код подтверждения"
 // @Success 200 {object} map[string]string
-// @Router /api/v1/2fa/disable [post]
+// @Router /2fa/disable [post]
 func (h *TwoFAHandler) Disable2FA(c *gin.Context) {
 	userID, err := h.getUserID(c)
 	if err != nil || userID == uuid.Nil {
@@ -161,7 +161,7 @@ func (h *TwoFAHandler) Disable2FA(c *gin.Context) {
 // @Produce json
 // @Param request body dto.Verify2FARequest true "Код для проверки"
 // @Success 200 {object} map[string]bool
-// @Router /api/v1/2fa/verify [post]
+// @Router /2fa/verify [post]
 func (h *TwoFAHandler) VerifyCode(c *gin.Context) {
 	userID, err := h.getUserID(c)
 	if err != nil || userID == uuid.Nil {
@@ -195,7 +195,7 @@ func (h *TwoFAHandler) VerifyCode(c *gin.Context) {
 // @Security BearerAuth
 // @Produce json
 // @Success 200 {object} map[string][]string
-// @Router /api/v1/2fa/recovery-codes [get]
+// @Router /2fa/recovery-codes [get]
 func (h *TwoFAHandler) GetRecoveryCodes(c *gin.Context) {
 	userID, err := h.getUserID(c)
 	if err != nil || userID == uuid.Nil {
@@ -225,7 +225,7 @@ func (h *TwoFAHandler) GetRecoveryCodes(c *gin.Context) {
 // @Produce json
 // @Param request body dto.RegenerateCodesRequest true "Код подтверждения"
 // @Success 200 {object} map[string][]string
-// @Router /api/v1/2fa/recovery-codes/regenerate [post]
+// @Router /2fa/recovery-codes/regenerate [post]
 func (h *TwoFAHandler) RegenerateRecoveryCodes(c *gin.Context) {
 	userID, err := h.getUserID(c)
 	if err != nil || userID == uuid.Nil {
@@ -263,7 +263,7 @@ func (h *TwoFAHandler) RegenerateRecoveryCodes(c *gin.Context) {
 // @Security BearerAuth
 // @Produce json
 // @Success 200 {object} map[string]bool
-// @Router /api/v1/2fa/status [get]
+// @Router /2fa/status [get]
 func (h *TwoFAHandler) Status(c *gin.Context) {
 	userID, err := h.getUserID(c)
 	if err != nil || userID == uuid.Nil {

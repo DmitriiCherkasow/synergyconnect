@@ -44,7 +44,7 @@ func (h *ChatHandler) getUserID(c *gin.Context) (uuid.UUID, error) {
 // @Success 201 {object} dto.MessageResponse
 // @Failure 400 {object} map[string]interface{}
 // @Failure 401 {object} map[string]interface{}
-// @Router /api/v1/chat/messages [post]
+// @Router /chat/messages [post]
 func (h *ChatHandler) SendMessage(c *gin.Context) {
 	userID, err := h.getUserID(c)
 	if err != nil || userID == uuid.Nil {
@@ -93,7 +93,7 @@ func (h *ChatHandler) SendMessage(c *gin.Context) {
 // @Param limit query int false "Лимит" default(50)
 // @Param offset query int false "Смещение" default(0)
 // @Success 200 {object} dto.ConversationResponse
-// @Router /api/v1/chat/messages/{userId} [get]
+// @Router /chat/messages/{userId} [get]
 func (h *ChatHandler) GetConversation(c *gin.Context) {
 	userID, err := h.getUserID(c)
 	if err != nil || userID == uuid.Nil {
@@ -150,7 +150,7 @@ func (h *ChatHandler) GetConversation(c *gin.Context) {
 // @Security BearerAuth
 // @Produce json
 // @Success 200 {object} map[string]int64
-// @Router /api/v1/chat/unread/count [get]
+// @Router /chat/unread/count [get]
 func (h *ChatHandler) GetUnreadCount(c *gin.Context) {
 	userID, err := h.getUserID(c)
 	if err != nil || userID == uuid.Nil {
@@ -175,7 +175,7 @@ func (h *ChatHandler) GetUnreadCount(c *gin.Context) {
 // @Produce json
 // @Param request body dto.MarkReadRequest true "Данные для отметки"
 // @Success 200 {object} map[string]string
-// @Router /api/v1/chat/read [put]
+// @Router /chat/read [put]
 func (h *ChatHandler) MarkAsRead(c *gin.Context) {
 	userID, err := h.getUserID(c)
 	if err != nil || userID == uuid.Nil {
@@ -234,7 +234,7 @@ func (h *ChatHandler) MarkAsRead(c *gin.Context) {
 // @Produce json
 // @Param limit query int false "Лимит" default(20)
 // @Success 200 {object} dto.RecentChatsResponse
-// @Router /api/v1/chat/recent [get]
+// @Router /chat/recent [get]
 func (h *ChatHandler) GetRecentChats(c *gin.Context) {
 	userID, err := h.getUserID(c)
 	if err != nil || userID == uuid.Nil {
@@ -295,7 +295,7 @@ func (h *ChatHandler) GetRecentChats(c *gin.Context) {
 // @Security BearerAuth
 // @Param id path string true "ID сообщения"
 // @Success 204 "No Content"
-// @Router /api/v1/chat/messages/{id} [delete]
+// @Router /chat/messages/{id} [delete]
 func (h *ChatHandler) DeleteMessage(c *gin.Context) {
 	userID, err := h.getUserID(c)
 	if err != nil || userID == uuid.Nil {

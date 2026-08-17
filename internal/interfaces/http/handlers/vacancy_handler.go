@@ -34,6 +34,16 @@ func (h *VacancyHandler) getUserID(c *gin.Context) (uuid.UUID, error) {
 }
 
 // CreateVacancy — создание вакансии
+// @Summary Создание вакансии
+// @Tags vacancies
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param request body dto.CreateVacancyRequest true "Данные для создания вакансии"
+// @Success 201 {object} dto.VacancyResponse
+// @Failure 400 {object} map[string]interface{}
+// @Failure 401 {object} map[string]interface{}
+// @Router /vacancies [post]
 func (h *VacancyHandler) CreateVacancy(c *gin.Context) {
 	userID, err := h.getUserID(c)
 	if err != nil || userID == uuid.Nil {
