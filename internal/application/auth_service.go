@@ -11,23 +11,14 @@ import (
 	"github.com/DmitriiCherkasow/synergyconnect.git/pkg/jwt"
 )
 
-// UserRepository — интерфейс для работы с пользователями
-type UserRepository interface {
-	Create(ctx context.Context, user *domain.User) error
-	FindByEmail(ctx context.Context, email string) (*domain.User, error)
-	FindByID(ctx context.Context, id uuid.UUID) (*domain.User, error)
-	Update(ctx context.Context, user *domain.User) error
-	UpdateLastLogin(ctx context.Context, userID uuid.UUID) error
-}
-
 // AuthService — сервис для аутентификации
 type AuthService struct {
-	userRepo   domain.UserRepository
+	userRepo   domain.UserRepository // ← используем domain.UserRepository
 	jwtService *jwt.JWTService
 }
 
 // NewAuthService создает новый сервис аутентификации
-func NewAuthService(userRepo UserRepository, jwtService *jwt.JWTService) *AuthService {
+func NewAuthService(userRepo domain.UserRepository, jwtService *jwt.JWTService) *AuthService {
 	return &AuthService{
 		userRepo:   userRepo,
 		jwtService: jwtService,
@@ -87,8 +78,8 @@ type LoginRequest struct {
 
 // LoginResponse — результат входа
 type LoginResponse struct {
-	User         *domain.User
-	TokenPair    *jwt.TokenPair
+	User      *domain.User
+	TokenPair *jwt.TokenPair
 }
 
 // Login выполняет вход пользователя

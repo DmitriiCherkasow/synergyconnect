@@ -14,6 +14,16 @@ var (
 
     // User errors
     ErrUserNotFound      = errors.New("user not found")
+    ErrUserAlreadyExists = errors.New("user already exists")
+    ErrUserBlocked       = errors.New("user is blocked")
+
+    // Admin errors
+    ErrSuperAdminExists         = errors.New("super admin already exists")
+    ErrCannotChangeSuperAdmin   = errors.New("cannot change super admin role")
+    ErrCannotDeleteSuperAdmin   = errors.New("cannot delete super admin")
+    ErrInsufficientPermissions  = errors.New("insufficient permissions")
+    ErrUserAlreadyAdmin         = errors.New("user is already an admin")
+    ErrUserNotAdmin             = errors.New("user is not an admin")
     
     // Project errors
     ErrProjectNotFound   = errors.New("project not found")

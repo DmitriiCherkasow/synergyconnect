@@ -9,17 +9,18 @@ import (
 type UserRole string
 
 const (
-	RoleStudent  UserRole = "student"   // Студент
-	RoleMentor   UserRole = "mentor"    // Ментор/Преподаватель
-	RoleEmployer UserRole = "employer"  // Работодатель
-	RoleAdmin    UserRole = "admin"     // Администратор
+	RoleStudent  UserRole = "student"    // Студент
+	RoleMentor   UserRole = "mentor"     // Ментор/Преподаватель
+	RoleEmployer UserRole = "employer"   // Работодатель
+	RoleAdmin    UserRole = "admin"      // Администратор
+	RoleSuperAdmin UserRole = "super_admin" // Старший Администратор
 )
 
 // User - основная бизнес-сущность пользователя
 type User struct {
 	ID           uuid.UUID  `json:"id" gorm:"type:uuid;default:gen_random_uuid();primaryKey"`
 	Email        string     `json:"email" gorm:"uniqueIndex;not null"`
-	PasswordHash string     `json:"-" gorm:"not null"` // "-" скрывает поле в JSON
+	PasswordHash string     `json:"-" gorm:"not null"`
 	Role         UserRole   `json:"role" gorm:"not null;default:'student'"`
 	FirstName    string     `json:"first_name" gorm:"size:100"`
 	LastName     string     `json:"last_name" gorm:"size:100"`
@@ -55,9 +56,14 @@ func (u *User) IsEmployer() bool {
 	return u.Role == RoleEmployer
 }
 
-// IsAdmin проверяет, является ли пользователь администратором
+// IsAdmin проверяет, является ли пользователь администратором (включая super_admin)
 func (u *User) IsAdmin() bool {
-	return u.Role == RoleAdmin
+	return u.Role == RoleAdmin || u.Role == RoleSuperAdmin
+}
+
+// IsSuperAdmin проверяет, является ли пользователь суперадминистратором
+func (u *User) IsSuperAdmin() bool {
+	return u.Role == RoleSuperAdmin
 }
 
 // HasRole проверяет, имеет ли пользователь указанную роль
@@ -65,19 +71,24 @@ func (u *User) HasRole(role UserRole) bool {
 	return u.Role == role
 }
 
-// CanManagePosts проверяет, может ли пользователь управлять постами (ментор или админ)
+// CanManagePosts проверяет, может ли пользователь управлять постами (ментор, админ или суперадмин)
 func (u *User) CanManagePosts() bool {
-	return u.Role == RoleMentor || u.Role == RoleAdmin
+	return u.Role == RoleMentor || u.Role == RoleAdmin || u.Role == RoleSuperAdmin
 }
 
-// CanManageUsers проверяет, может ли пользователь управлять другими пользователями (только админ)
+// CanManageUsers проверяет, может ли пользователь управлять другими пользователями (админ или суперадмин)
 func (u *User) CanManageUsers() bool {
-	return u.Role == RoleAdmin
+	return u.Role == RoleAdmin || u.Role == RoleSuperAdmin
 }
 
-// CanPostJobs проверяет, может ли пользователь публиковать вакансии (работодатель или админ)
+// CanAssignAdmin проверяет, может ли пользователь назначать администраторов (только суперадмин)
+func (u *User) CanAssignAdmin() bool {
+	return u.Role == RoleSuperAdmin
+}
+
+// CanPostJobs проверяет, может ли пользователь публиковать вакансии (работодатель, админ или суперадмин)
 func (u *User) CanPostJobs() bool {
-	return u.Role == RoleEmployer || u.Role == RoleAdmin
+	return u.Role == RoleEmployer || u.Role == RoleAdmin || u.Role == RoleSuperAdmin
 }
 
 // IsPublicProfile проверяет, виден ли профиль публично

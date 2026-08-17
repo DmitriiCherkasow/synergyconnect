@@ -115,4 +115,22 @@ type UserRepository interface {
 	FindByID(ctx context.Context, id uuid.UUID) (*User, error)
 	Update(ctx context.Context, user *User) error
 	UpdateLastLogin(ctx context.Context, userID uuid.UUID) error
+    List(ctx context.Context, filter UserFilter) ([]User, int64, error)
+    Delete(ctx context.Context, id uuid.UUID) error
+
+    // Admin specific methods
+    FindSuperAdmin(ctx context.Context) (*User, error)
+    CountAdmins(ctx context.Context) (int64, error)
+    FindAdmins(ctx context.Context) ([]User, error)
+    PromoteToAdmin(ctx context.Context, userID uuid.UUID) error
+    DemoteFromAdmin(ctx context.Context, userID uuid.UUID) error
+}
+
+// UserFilter — фильтр для списка пользователей
+type UserFilter struct {
+    Search   string
+    Role     *UserRole
+    IsActive *bool
+    Limit    int
+    Offset   int
 }
