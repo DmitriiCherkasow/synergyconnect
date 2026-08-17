@@ -283,3 +283,10 @@ func (r *vacancyRepository) CountResponsesByVacancy(ctx context.Context, vacancy
 		Count(&count).Error
 	return count, err
 }
+
+// Count implements domain.VacancyRepository
+func (r *vacancyRepository) Count(ctx context.Context) (int64, error) {
+    var count int64
+    err := r.db.WithContext(ctx).Model(&domain.Vacancy{}).Count(&count).Error
+    return count, err
+}

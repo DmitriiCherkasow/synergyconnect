@@ -20,6 +20,7 @@ type ProjectRepository interface {
     UpdateApplication(ctx context.Context, application *ProjectApplication) error
     GetApplication(ctx context.Context, id uuid.UUID) (*ProjectApplication, error)
     GetUserApplications(ctx context.Context, userID uuid.UUID) ([]ProjectApplication, error)
+    Count(ctx context.Context) (int64, error)
 }
 
 type ProjectFilter struct {
@@ -46,6 +47,7 @@ type VacancyRepository interface {
     GetResponsesByVacancy(ctx context.Context, vacancyID uuid.UUID) ([]VacancyResponse, error)
     GetUserResponses(ctx context.Context, userID uuid.UUID) ([]VacancyResponse, error)
     Search(ctx context.Context, query string, limit, offset int) ([]Vacancy, int64, error)
+    Count(ctx context.Context) (int64, error)
 }
 
 type VacancyFilter struct {
@@ -124,6 +126,11 @@ type UserRepository interface {
     FindAdmins(ctx context.Context) ([]User, error)
     PromoteToAdmin(ctx context.Context, userID uuid.UUID) error
     DemoteFromAdmin(ctx context.Context, userID uuid.UUID) error
+
+    // Stats methods
+    Count(ctx context.Context) (int64, error)
+    CountActive(ctx context.Context) (int64, error)
+    CountNewToday(ctx context.Context) (int64, error)
 }
 
 // UserFilter — фильтр для списка пользователей
@@ -133,4 +140,51 @@ type UserFilter struct {
     IsActive *bool
     Limit    int
     Offset   int
+}
+
+// PostRepository defines post repository interface
+type PostRepository interface {
+    Create(ctx context.Context, post *Post) error
+    GetByID(ctx context.Context, id uuid.UUID) (*Post, error)
+    Update(ctx context.Context, post *Post) error
+    Delete(ctx context.Context, id uuid.UUID) error
+    List(ctx context.Context, filter PostFilter) ([]Post, int64, error)
+    ListByAuthor(ctx context.Context, authorID uuid.UUID, limit, offset int) ([]Post, int64, error)
+    ListByGroup(ctx context.Context, groupID uuid.UUID, limit, offset int) ([]Post, int64, error)
+    GetPublicFeed(ctx context.Context, limit, offset int) ([]Post, int64, error)
+    GetFeed(ctx context.Context, userID uuid.UUID, limit, offset int) ([]Post, int64, error)
+    Count(ctx context.Context) (int64, error)
+}
+
+// CommentRepository defines comment repository interface
+type CommentRepository interface {
+    Create(ctx context.Context, comment *Comment) error
+    GetByID(ctx context.Context, id uuid.UUID) (*Comment, error)
+    Update(ctx context.Context, comment *Comment) error
+    Delete(ctx context.Context, id uuid.UUID) error
+    ListByPost(ctx context.Context, postID uuid.UUID) ([]Comment, error)
+    ListByAuthor(ctx context.Context, authorID uuid.UUID, limit, offset int) ([]Comment, int64, error)
+    List(ctx context.Context, filter CommentFilter) ([]Comment, int64, error)
+    Count(ctx context.Context) (int64, error)
+    CountByPostID(ctx context.Context, postID uuid.UUID) (int64, error)
+}
+
+// PostFilter — фильтр для постов
+type PostFilter struct {
+    AuthorID   *uuid.UUID
+    GroupID    *uuid.UUID
+    Category   *PostCategory
+    Visibility *PostVisibility
+    Search     string
+    Limit      int
+    Offset     int
+}
+
+// CommentFilter — фильтр для комментариев
+type CommentFilter struct {
+    PostID     *uuid.UUID
+    AuthorID   *uuid.UUID
+    Search     string
+    Limit      int
+    Offset     int
 }

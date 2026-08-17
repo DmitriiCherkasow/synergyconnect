@@ -4,11 +4,14 @@ import (
 	"github.com/DmitriiCherkasow/synergyconnect.git/internal/domain"
 )
 
-// ToUserResponse преобразует доменную модель User в UserResponse
+// UserListResponse — список пользователей
+type UserListResponse struct {
+	Users []UserResponse `json:"users"`
+	Total int64          `json:"total"`
+}
+
+// ToUserResponse конвертирует доменную модель в DTO
 func ToUserResponse(user *domain.User) UserResponse {
-	if user == nil {
-		return UserResponse{}
-	}
 	return UserResponse{
 		ID:         user.ID.String(),
 		Email:      user.Email,
@@ -17,5 +20,7 @@ func ToUserResponse(user *domain.User) UserResponse {
 		LastName:   user.LastName,
 		AvatarURL:  user.AvatarURL,
 		IsVerified: user.IsVerified,
+		IsActive:   user.IsActive,
+		Bio:        user.Bio,
 	}
 }

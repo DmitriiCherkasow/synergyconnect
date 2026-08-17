@@ -315,3 +315,10 @@ func (r *projectRepository) GetPendingApplications(ctx context.Context, projectI
 		Find(&applications).Error
 	return applications, err
 }
+
+// Count implements domain.ProjectRepository
+func (r *projectRepository) Count(ctx context.Context) (int64, error) {
+    var count int64
+    err := r.db.WithContext(ctx).Model(&domain.Project{}).Count(&count).Error
+    return count, err
+}

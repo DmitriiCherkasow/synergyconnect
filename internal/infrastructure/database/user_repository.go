@@ -147,3 +147,26 @@ func (r *UserRepository) DemoteFromAdmin(ctx context.Context, userID uuid.UUID) 
         Where("id = ? AND role = ?", userID, domain.RoleAdmin).
         Update("role", domain.RoleStudent).Error
 }
+
+// Count implements domain.UserRepository
+func (r *UserRepository) Count(ctx context.Context) (int64, error) {
+    var count int64
+    err := r.db.WithContext(ctx).Model(&domain.User{}).Count(&count).Error
+    return count, err
+}
+
+// CountActive implements domain.UserRepository
+func (r *UserRepository) CountActive(ctx context.Context) (int64, error) {
+    var count int64
+    err := r.db.WithContext(ctx).Model(&domain.User{}).Where("is_active = ?", true).Count(&count).Error
+    return count, err
+}
+
+// CountNewToday implements domain.UserRepository
+func (r *UserRepository) CountNewToday(ctx context.Context) (int64, error) {
+    var count int64
+    err := r.db.WithContext(ctx).Model(&domain.User{}).
+        Where("created_at >= CURRENT_DATE").
+        Count(&count).Error
+    return count, err
+}

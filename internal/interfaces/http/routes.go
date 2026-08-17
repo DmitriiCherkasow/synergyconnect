@@ -24,6 +24,7 @@ func SetupRoutes(
 	chatHandler *handlers.ChatHandler,
 	notificationHandler *handlers.NotificationHandler,
 	twofaHandler *handlers.TwoFAHandler,
+	adminHandler *handlers.AdminHandler,
 	jwtService *jwt.JWTService,
 	twofaService *application.TwoFAService,
 ) {

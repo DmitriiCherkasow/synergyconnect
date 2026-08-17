@@ -23,7 +23,30 @@ import (
 	"github.com/DmitriiCherkasow/synergyconnect.git/internal/worker"
 	"github.com/DmitriiCherkasow/synergyconnect.git/pkg/jwt"
 	"github.com/DmitriiCherkasow/synergyconnect.git/pkg/totp"
+
+	//_ "github.com/DmitriiCherkasow/synergyconnect.git/docs" // Swagger docs
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
+
+// @title           SynergyConnect API
+// @version         1.0.0
+// @description     Университетская социальная сеть с полным набором функций
+// @termsOfService  https://synergyconnect.com/terms
+
+// @contact.name   API Support
+// @contact.email  support@synergyconnect.com
+
+// @license.name   MIT
+// @license.url    https://opensource.org/licenses/MIT
+
+// @host      localhost:8080
+// @BasePath  /api/v1
+
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description Type "Bearer" followed by a space and JWT token.
 
 func main() {
 	log.Println("🚀 SynergyConnect starting...")
@@ -98,15 +121,11 @@ func main() {
 	subscriptionRepo := database.NewSubscriptionRepository(db)
 	tagRepo := database.NewTagRepository(db)
 
-	// Репозитории для Спринта 2
 	boardRepo := database.NewBoardRepository(db)
 	stickerRepo := database.NewStickerRepository(db)
 	reminderRepo := database.NewReminderRepository(db)
 	reminderEmailRepo := database.NewReminderEmailRepository(db)
 
-	// ============================================================
-	// НОВЫЕ РЕПОЗИТОРИИ ДЛЯ СПРИНТА 3
-	// ============================================================
 	projectRepo := database.NewProjectRepository(db)
 	vacancyRepo := database.NewVacancyRepository(db)
 	messageRepo := database.NewMessageRepository(db)
@@ -125,14 +144,10 @@ func main() {
 	postService := application.NewPostService(postRepo, commentRepo, tagRepo)
 	groupService := application.NewGroupService(groupRepo, subscriptionRepo)
 
-	// Сервисы для Спринта 2
 	boardService := application.NewBoardService(boardRepo, stickerRepo, reminderRepo)
 	stickerService := application.NewStickerService(stickerRepo, boardRepo, reminderRepo)
 	reminderService := application.NewReminderService(reminderRepo, stickerRepo)
 
-	// ============================================================
-	// НОВЫЕ СЕРВИСЫ ДЛЯ СПРИНТА 3
-	// ============================================================
 	projectService := application.NewProjectService(projectRepo)
 	vacancyService := application.NewVacancyService(vacancyRepo)
 	chatService := application.NewChatService(messageRepo, userRepo)
@@ -140,11 +155,23 @@ func main() {
 	twofaService := application.NewTwoFAService(twofaRepo, userRepo, totpProvider)
 
 	// ============================================================
+	// АДМИН СЕРВИС
+	// ============================================================
+	adminService := application.NewAdminService(
+		userRepo,
+		postRepo,
+		commentRepo,
+		projectRepo,
+		vacancyRepo,
+	)
+
+	// ============================================================
 	// WebSocket HUB
 	// ============================================================
 	wsHub := ws.NewHub()
 	go wsHub.Run()
 
+	
 	// ============================================================
 	// ИНИЦИАЛИЗАЦИЯ ОБРАБОТЧИКОВ
 	// ============================================================
@@ -153,21 +180,17 @@ func main() {
 	commentHandler := handlers.NewCommentHandler(postService)
 	groupHandler := handlers.NewGroupHandler(groupService)
 
-	// Обработчики для Спринта 2
 	boardHandler := handlers.NewBoardHandler(boardService, stickerService)
 	stickerHandler := handlers.NewStickerHandler(stickerService)
 	reminderHandler := handlers.NewReminderHandler(reminderService)
 
-	// ============================================================
-	// НОВЫЕ ОБРАБОТЧИКИ ДЛЯ СПРИНТА 3
-	// ============================================================
 	projectHandler := handlers.NewProjectHandler(projectService)
 	vacancyHandler := handlers.NewVacancyHandler(vacancyService)
 	chatHandler := handlers.NewChatHandler(chatService)
 	notificationHandler := handlers.NewNotificationHandler(notificationService)
 	twofaHandler := handlers.NewTwoFAHandler(twofaService)
+	adminHandler := handlers.NewAdminHandler(adminService)
 
-	// WebSocket обработчик (создаём, но пока не используем в роутах)
 	_ = wsHandlers.NewChatWebSocketHandler(wsHub, chatService)
 
 	// ============================================================
@@ -184,7 +207,6 @@ func main() {
 	}
 	emailService := email.NewService(emailConfig)
 
-	// Инициализация воркера
 	reminderWorker := worker.NewReminderWorker(
 		reminderRepo,
 		stickerRepo,
@@ -195,18 +217,20 @@ func main() {
 		1*time.Minute,
 	)
 
-	// Запуск воркера в отдельной горутине
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	go reminderWorker.Start(ctx)
 
 	// ============================================================
-	// НАСТРОЙКА РОУТЕРА И ЗАПУСК СЕРВЕРА
+	// НАСТРОЙКА РОУТЕРА
 	// ============================================================
 	r := gin.Default()
 
+	// Swagger UI
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
 	// Настройка маршрутов
-	httpRoutes.SetupRoutes( 
+	httpRoutes.SetupRoutes(
 		r,
 		authHandler,
 		postHandler,
@@ -220,21 +244,24 @@ func main() {
 		chatHandler,
 		notificationHandler,
 		twofaHandler,
+		adminHandler,
 		jwtService,
 		twofaService,
 	)
 
-	// WebSocket эндпоинт (добавляем отдельно)
+	// WebSocket эндпоинт
 	r.GET("/ws/chat", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"message": "WebSocket endpoint"})
 	})
 
-	// Запускаем сервер
+	// ============================================================
+	// ЗАПУСК СЕРВЕРА
+	// ============================================================
 	port := getEnv("SERVER_PORT", "8080")
 	log.Printf("✅ Server is running on http://localhost:%s", port)
+	log.Printf("📚 Swagger UI: http://localhost:%s/swagger/index.html", port)
 	log.Printf("📧 Reminder worker is running (checking every 1 minute)")
 
-	// Graceful shutdown для воркера при завершении сервера
 	defer func() {
 		log.Println("🛑 Shutting down reminder worker...")
 		cancel()
@@ -247,7 +274,6 @@ func main() {
 	}
 }
 
-// getEnv получает переменную окружения или возвращает значение по умолчанию
 func getEnv(key, defaultValue string) string {
 	if value := os.Getenv(key); value != "" {
 		return value

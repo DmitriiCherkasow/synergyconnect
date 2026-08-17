@@ -1,4 +1,3 @@
-C:.
 |   .env.example
 |   .gitignore
 |   go.mod
@@ -18,12 +17,18 @@ C:.
 +---docs
 +---internal
 |   +---application
+|   |       admin_service.go
 |   |       auth_service.go
 |   |       board_service.go
+|   |       chat_service.go
 |   |       group_service.go
+|   |       notification_service.go
 |   |       post_service.go
+|   |       project_service.go
 |   |       reminder_service.go
 |   |       sticker_service.go
+|   |       twofa_service.go
+|   |       vacancy_service.go
 |   |       
 |   +---domain
 |   |       board.go
@@ -75,7 +80,12 @@ C:.
 |   |   |       000004_create_projects_tables.down.sql
 |   |   |       000004_create_projects_tables.up.sql
 |   |   |       
-|   |   \---redis
+|   |   +---redis
+|   |   \---websocket
+|   |           client.go
+|   |           hub.go
+|   |           types.go
+|   |           
 |   +---interfaces
 |   |   +---http
 |   |   |   |   routes.go
@@ -83,23 +93,37 @@ C:.
 |   |   |   +---dto
 |   |   |   |       auth_dto.go
 |   |   |   |       board_dto.go
+|   |   |   |       message_dto.go
+|   |   |   |       notification_dto.go
 |   |   |   |       post_dto.go
+|   |   |   |       project_dto.go
 |   |   |   |       reminder_dto.go
+|   |   |   |       twofa_dto.go
 |   |   |   |       user_dto.go
+|   |   |   |       vacancy_dto.go
 |   |   |   |       
 |   |   |   +---handlers
+|   |   |   |       admin_handler.go
 |   |   |   |       auth_handler.go
 |   |   |   |       board_handler.go
+|   |   |   |       chat_handler.go
 |   |   |   |       comment_handler.go
 |   |   |   |       group_handler.go
+|   |   |   |       notification_handler.go
 |   |   |   |       post_handler.go
+|   |   |   |       project_handler.go
 |   |   |   |       reminder_handler.go
 |   |   |   |       sticker_handler.go
+|   |   |   |       twofa_handler.go
+|   |   |   |       vacancy_handler.go
 |   |   |   |       
 |   |   |   \---middleware
 |   |   |           auth_middleware.go
+|   |   |           twofa_middleware.go
 |   |   |           
 |   |   \---websocket
+|   |           chat_handler.go
+|   |           
 |   \---worker
 |           reminder_worker.go
 |           
@@ -114,5 +138,10 @@ C:.
 |   |       jwt.go
 |   |       
 |   +---logger
+|   +---totp
+|   |       totp.go
+|   |       
 |   \---utils
 \---scripts
+        create_super_admin.go
+        

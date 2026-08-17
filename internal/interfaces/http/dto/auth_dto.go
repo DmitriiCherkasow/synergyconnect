@@ -67,4 +67,6 @@ type UserResponse struct {
 	LastName   string `json:"last_name"`
 	AvatarURL  string `json:"avatar_url,omitempty"`
 	IsVerified bool   `json:"is_verified"`
+	IsActive   bool   `json:"is_active"`
+	Bio        string `json:"bio,omitempty"`
 }
