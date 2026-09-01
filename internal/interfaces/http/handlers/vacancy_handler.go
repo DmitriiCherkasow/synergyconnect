@@ -151,6 +151,20 @@ func (h *VacancyHandler) GetVacancy(c *gin.Context) {
 }
 
 // UpdateVacancy — обновление вакансии
+// @Summary Обновление вакансии
+// @Description Обновляет данные вакансии. Только работодатель может обновить свою вакансию.
+// @Tags vacancies
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param id path string true "ID вакансии"
+// @Param request body dto.UpdateVacancyRequest true "Данные для обновления"
+// @Success 200 {object} dto.VacancyResponse
+// @Failure 400 {object} map[string]interface{}
+// @Failure 401 {object} map[string]interface{}
+// @Failure 403 {object} map[string]interface{}
+// @Failure 404 {object} map[string]interface{}
+// @Router /vacancies/{id} [put]
 func (h *VacancyHandler) UpdateVacancy(c *gin.Context) {
 	userID, err := h.getUserID(c)
 	if err != nil || userID == uuid.Nil {
@@ -219,6 +233,18 @@ func (h *VacancyHandler) UpdateVacancy(c *gin.Context) {
 }
 
 // DeleteVacancy — удаление вакансии
+// DeleteVacancy — удаление вакансии
+// @Summary Удаление вакансии
+// @Description Удаляет вакансию. Только работодатель может удалить свою вакансию.
+// @Tags vacancies
+// @Security BearerAuth
+// @Param id path string true "ID вакансии"
+// @Success 204 "No Content"
+// @Failure 400 {object} map[string]interface{}
+// @Failure 401 {object} map[string]interface{}
+// @Failure 403 {object} map[string]interface{}
+// @Failure 404 {object} map[string]interface{}
+// @Router /vacancies/{id} [delete]
 func (h *VacancyHandler) DeleteVacancy(c *gin.Context) {
 	userID, err := h.getUserID(c)
 	if err != nil || userID == uuid.Nil {

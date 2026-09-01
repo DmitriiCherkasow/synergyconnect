@@ -264,6 +264,40 @@ func (s *AdminService) DeleteVacancy(ctx context.Context, actorID, vacancyID uui
 	return s.vacancyRepo.Delete(ctx, vacancyID)
 }
 
+// DeleteAdmin — удаление администратора (только суперадмин)
+func (s *AdminService) DeleteAdmin(ctx context.Context, actorID, adminID uuid.UUID) error {
+    // Проверяем права актора (только суперадмин)
+    actor, err := s.userRepo.FindByID(ctx, actorID)
+    if err != nil {
+        return err
+    }
+    if actor == nil || !actor.IsSuperAdmin() {
+        return domain.ErrInsufficientPermissions
+    }
+
+    // Находим админа
+    admin, err := s.userRepo.FindByID(ctx, adminID)
+    if err != nil {
+        return err
+    }
+    if admin == nil {
+        return domain.ErrUserNotFound
+    }
+
+    // Нельзя удалить суперадмина
+    if admin.IsSuperAdmin() {
+        return domain.ErrCannotDeleteSuperAdmin
+    }
+
+    // Проверяем, что пользователь действительно админ
+    if !admin.IsAdmin() {
+        return domain.ErrUserNotAdmin
+    }
+
+    // Понижаем до студента
+    return s.userRepo.DemoteFromAdmin(ctx, adminID)
+}
+
 // ============================================
 // Статистика
 // ============================================

@@ -42,14 +42,6 @@ type PostResponse struct {
 	UpdatedAt  time.Time           `json:"updated_at"`
 }
 
-// CommentResponse — ответ с данными комментария
-type CommentResponse struct {
-	ID        string       `json:"id"`
-	Author    UserResponse `json:"author"`
-	Content   string       `json:"content"`
-	CreatedAt time.Time    `json:"created_at"`
-	UpdatedAt time.Time    `json:"updated_at"`
-}
 
 // TagResponse — ответ с данными тега
 type TagResponse struct {
@@ -133,4 +125,10 @@ func ToGroupResponse(group *domain.Group) GroupResponse {
 	}
 
 	return resp
+}
+
+// PostListResponse — список постов
+type PostListResponse struct {
+	Posts []PostResponse `json:"posts"`
+	Total int64          `json:"total"`
 }

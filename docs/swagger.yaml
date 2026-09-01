@@ -1,5 +1,24 @@
 basePath: /api/v1
 definitions:
+  application.Stats:
+    properties:
+      active_users:
+        type: integer
+      new_users_today:
+        type: integer
+      total_admins:
+        type: integer
+      total_comments:
+        type: integer
+      total_posts:
+        type: integer
+      total_projects:
+        type: integer
+      total_users:
+        type: integer
+      total_vacancies:
+        type: integer
+    type: object
   dto.AuthResponse:
     properties:
       access_token:
@@ -11,15 +30,30 @@ definitions:
       user:
         $ref: '#/definitions/dto.UserResponse'
     type: object
+  dto.CommentListResponse:
+    properties:
+      comments:
+        items:
+          $ref: '#/definitions/dto.CommentResponse'
+        type: array
+      total:
+        type: integer
+    type: object
   dto.CommentResponse:
     properties:
       author:
         $ref: '#/definitions/dto.UserResponse'
+      author_id:
+        type: string
       content:
         type: string
       created_at:
         type: string
       id:
+        type: string
+      parent_id:
+        type: string
+      post_id:
         type: string
       updated_at:
         type: string
@@ -171,6 +205,13 @@ definitions:
     - company
     - title
     type: object
+  dto.DeleteAccountRequest:
+    properties:
+      password:
+        type: string
+    required:
+    - password
+    type: object
   dto.Disable2FARequest:
     properties:
       code:
@@ -248,6 +289,15 @@ definitions:
         type: string
       sender_id:
         type: string
+    type: object
+  dto.PostListResponse:
+    properties:
+      posts:
+        items:
+          $ref: '#/definitions/dto.PostResponse'
+        type: array
+      total:
+        type: integer
     type: object
   dto.PostResponse:
     properties:
@@ -339,6 +389,15 @@ definitions:
         type: string
       updated_at:
         type: string
+    type: object
+  dto.ProjectListResponse:
+    properties:
+      projects:
+        items:
+          $ref: '#/definitions/dto.ProjectResponse'
+        type: array
+      total:
+        type: integer
     type: object
   dto.ProjectMemberResponse:
     properties:
@@ -572,6 +631,33 @@ definitions:
       width:
         type: integer
     type: object
+  dto.UpdateVacancyRequest:
+    properties:
+      company:
+        type: string
+      currency:
+        type: string
+      description:
+        type: string
+      employment_type:
+        type: string
+      experience_level:
+        type: string
+      is_remote:
+        type: boolean
+      location:
+        type: string
+      requirements:
+        type: string
+      salary_max:
+        type: integer
+      salary_min:
+        type: integer
+      status:
+        type: string
+      title:
+        type: string
+    type: object
   dto.UserListResponse:
     properties:
       total:
@@ -601,6 +687,15 @@ definitions:
         type: string
       role:
         type: string
+    type: object
+  dto.VacancyListResponse:
+    properties:
+      total:
+        type: integer
+      vacancies:
+        items:
+          $ref: '#/definitions/dto.VacancyResponse'
+        type: array
     type: object
   dto.VacancyResponse:
     properties:
@@ -820,6 +915,424 @@ paths:
       summary: Проверка TOTP кода
       tags:
       - 2fa
+  /admin/admins:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.UserResponse'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Список администраторов
+      tags:
+      - admin
+  /admin/admins/{id}:
+    delete:
+      parameters:
+      - description: ID администратора
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Удаление администратора
+      tags:
+      - admin
+  /admin/admins/demote/{id}:
+    post:
+      parameters:
+      - description: ID администратора
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Понижение администратора
+      tags:
+      - admin
+  /admin/admins/promote/{id}:
+    post:
+      parameters:
+      - description: ID пользователя
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Повышение до администратора
+      tags:
+      - admin
+  /admin/comments:
+    get:
+      parameters:
+      - default: 20
+        description: Лимит
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Смещение
+        in: query
+        name: offset
+        type: integer
+      - description: Поиск
+        in: query
+        name: search
+        type: string
+      - description: ID поста
+        in: query
+        name: post_id
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.CommentListResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Список комментариев
+      tags:
+      - admin
+  /admin/comments/{id}:
+    delete:
+      parameters:
+      - description: ID комментария
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Удаление комментария
+      tags:
+      - admin
+  /admin/posts:
+    get:
+      parameters:
+      - default: 20
+        description: Лимит
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Смещение
+        in: query
+        name: offset
+        type: integer
+      - description: Поиск
+        in: query
+        name: search
+        type: string
+      - description: Категория
+        in: query
+        name: category
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.PostListResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Список постов
+      tags:
+      - admin
+  /admin/posts/{id}:
+    delete:
+      parameters:
+      - description: ID поста
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Удаление поста
+      tags:
+      - admin
+  /admin/projects:
+    get:
+      parameters:
+      - default: 20
+        description: Лимит
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Смещение
+        in: query
+        name: offset
+        type: integer
+      - description: Статус
+        in: query
+        name: status
+        type: string
+      - description: Поиск
+        in: query
+        name: search
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ProjectListResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Список проектов
+      tags:
+      - admin
+  /admin/projects/{id}:
+    delete:
+      parameters:
+      - description: ID проекта
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Удаление проекта
+      tags:
+      - admin
+  /admin/stats:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/application.Stats'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Статистика
+      tags:
+      - admin
+  /admin/super-admin:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.UserResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Получение суперадмина
+      tags:
+      - admin
   /admin/users:
     get:
       parameters:
@@ -867,6 +1380,269 @@ paths:
       summary: Список пользователей
       tags:
       - admin
+  /admin/users/{id}:
+    delete:
+      parameters:
+      - description: ID пользователя
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Удаление пользователя
+      tags:
+      - admin
+    get:
+      parameters:
+      - description: ID пользователя
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.UserResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Детали пользователя
+      tags:
+      - admin
+  /admin/users/{id}/block:
+    put:
+      parameters:
+      - description: ID пользователя
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Блокировка пользователя
+      tags:
+      - admin
+  /admin/users/{id}/unblock:
+    put:
+      parameters:
+      - description: ID пользователя
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Разблокировка пользователя
+      tags:
+      - admin
+  /admin/vacancies:
+    get:
+      parameters:
+      - default: 20
+        description: Лимит
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Смещение
+        in: query
+        name: offset
+        type: integer
+      - description: Статус
+        in: query
+        name: status
+        type: string
+      - description: Поиск
+        in: query
+        name: search
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.VacancyListResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Список вакансий
+      tags:
+      - admin
+  /admin/vacancies/{id}:
+    delete:
+      parameters:
+      - description: ID вакансии
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Удаление вакансии
+      tags:
+      - admin
+  /auth/account:
+    delete:
+      consumes:
+      - application/json
+      description: Удаляет аккаунт пользователя. Требуется подтверждение паролем.
+      parameters:
+      - description: Подтверждение пароля
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.DeleteAccountRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Удаление аккаунта
+      tags:
+      - auth
   /auth/login:
     post:
       consumes:
@@ -1732,6 +2508,92 @@ paths:
       security:
       - BearerAuth: []
       summary: Создание вакансии
+      tags:
+      - vacancies
+  /vacancies/{id}:
+    delete:
+      description: Удаляет вакансию. Только работодатель может удалить свою вакансию.
+      parameters:
+      - description: ID вакансии
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Удаление вакансии
+      tags:
+      - vacancies
+    put:
+      consumes:
+      - application/json
+      description: Обновляет данные вакансии. Только работодатель может обновить свою
+        вакансию.
+      parameters:
+      - description: ID вакансии
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Данные для обновления
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateVacancyRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.VacancyResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Обновление вакансии
       tags:
       - vacancies
 securityDefinitions:

@@ -157,3 +157,30 @@ func (s *AuthService) RefreshTokens(ctx context.Context, refreshToken string) (*
 func (s *AuthService) GetUserByID(ctx context.Context, userID uuid.UUID) (*domain.User, error) {
 	return s.userRepo.FindByID(ctx, userID)
 }
+
+// DeleteAccount удаляет аккаунт пользователя
+func (s *AuthService) DeleteAccount(ctx context.Context, userID uuid.UUID, password string) error {
+    user, err := s.userRepo.FindByID(ctx, userID)
+    if err != nil {
+        return err
+    }
+    if user == nil {
+        return domain.ErrUserNotFound
+    }
+
+    // Проверяем пароль
+    valid, err := crypto.VerifyPassword(password, user.PasswordHash)
+    if err != nil {
+        return err
+    }
+    if !valid {
+        return errors.New("invalid password")
+    }
+
+    // Нельзя удалить суперадмина через обычное удаление аккаунта
+    if user.IsSuperAdmin() {
+        return domain.ErrCannotDeleteSuperAdmin
+    }
+
+    return s.userRepo.Delete(ctx, userID)
+}

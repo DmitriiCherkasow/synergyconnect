@@ -65,6 +65,11 @@ func SetupRoutes(
 			protected.GET("/posts/feed", postHandler.GetFeed)
 
 			// ============================================
+			// Аккаунт
+			// ============================================
+			protected.DELETE("/auth/account", authHandler.DeleteAccount)
+
+			// ============================================
 			// Комментарии
 			// ============================================
 			protected.POST("/posts/:postId/comments", commentHandler.AddComment)
@@ -164,18 +169,54 @@ func SetupRoutes(
 			protected.POST("/2fa/recovery-codes/regenerate", twofaHandler.RegenerateRecoveryCodes)
 
 			// ============================================
+			// АДМИН-ПАНЕЛЬ
+			// ============================================
+			admin := protected.Group("/admin")
+			admin.Use(middleware.RequireAdmin())
+			{
+				// Управление пользователями
+				admin.GET("/users", adminHandler.GetUsers)
+				admin.GET("/users/:id", adminHandler.GetUser)
+				admin.PUT("/users/:id/block", adminHandler.BlockUser)
+				admin.PUT("/users/:id/unblock", adminHandler.UnblockUser)
+				admin.DELETE("/users/:id", adminHandler.DeleteUser)
+
+				// Управление контентом
+				admin.GET("/posts", adminHandler.GetPosts)
+				admin.DELETE("/posts/:id", adminHandler.DeletePost)
+				admin.GET("/comments", adminHandler.GetComments)
+				admin.DELETE("/comments/:id", adminHandler.DeleteComment)
+				admin.GET("/projects", adminHandler.GetProjects)
+				admin.DELETE("/projects/:id", adminHandler.DeleteProject)
+				admin.GET("/vacancies", adminHandler.GetVacancies)
+				admin.DELETE("/vacancies/:id", adminHandler.DeleteVacancy)
+
+				// Статистика
+				admin.GET("/stats", adminHandler.GetStats)
+
+				// Управление администраторами (только super_admin)
+				superAdmin := admin.Group("/")
+				superAdmin.Use(middleware.RequireSuperAdmin())
+				{
+					superAdmin.GET("/admins", adminHandler.GetAdmins)
+					superAdmin.POST("/admins/promote/:id", adminHandler.PromoteToAdmin)
+					superAdmin.POST("/admins/demote/:id", adminHandler.DemoteFromAdmin)
+					superAdmin.DELETE("/admins/:id", adminHandler.DeleteAdmin)
+					superAdmin.GET("/super-admin", adminHandler.GetSuperAdmin)
+				}
+			}
+
+			// ============================================
 			// Защищённые эндпоинты (требуют 2FA)
 			// ============================================
 			secure := protected.Group("/secure")
 			secure.Use(middleware.Require2FA(twofaService))
 			{
-				// Здесь эндпоинты, которые требуют 2FA
-				// Например, смена пароля, удаление аккаунта и т.д.
 				secure.GET("/profile/secure", func(c *gin.Context) {
 					userID := middleware.GetUserIDFromContext(c)
 					c.JSON(200, gin.H{
-						"message":    "Secure endpoint with 2FA",
-						"user_id":    userID,
+						"message":      "Secure endpoint with 2FA",
+						"user_id":      userID,
 						"2fa_verified": true,
 					})
 				})

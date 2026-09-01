@@ -7,6 +7,10 @@ import (
 
 	"github.com/DmitriiCherkasow/synergyconnect.git/internal/application"
 	"github.com/DmitriiCherkasow/synergyconnect.git/internal/interfaces/http/dto"
+	"github.com/DmitriiCherkasow/synergyconnect.git/internal/domain"
+	"github.com/DmitriiCherkasow/synergyconnect.git/internal/interfaces/http/middleware"
+	"github.com/google/uuid"
+	
 )
 
 // AuthHandler — обработчик для эндпоинтов аутентификации
@@ -17,6 +21,15 @@ type AuthHandler struct {
 // NewAuthHandler создает новый обработчик
 func NewAuthHandler(authService *application.AuthService) *AuthHandler {
 	return &AuthHandler{authService: authService}
+}
+
+// getUserID извлекает ID пользователя из контекста
+func (h *AuthHandler) getUserID(c *gin.Context) (uuid.UUID, error) {
+	userIDStr := middleware.GetUserIDFromContext(c)
+	if userIDStr == "" {
+		return uuid.Nil, nil
+	}
+	return uuid.Parse(userIDStr)
 }
 
 // Register — обработчик регистрации
@@ -169,4 +182,57 @@ func (h *AuthHandler) RefreshToken(c *gin.Context) {
 		"refresh_token": tokenPair.RefreshToken,
 		"expires_in":    tokenPair.ExpiresIn,
 	})
+}
+
+// DeleteAccount — удаление аккаунта пользователя
+// @Summary Удаление аккаунта
+// @Description Удаляет аккаунт пользователя. Требуется подтверждение паролем.
+// @Tags auth
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param request body dto.DeleteAccountRequest true "Подтверждение пароля"
+// @Success 200 {object} map[string]string
+// @Failure 400 {object} map[string]interface{}
+// @Failure 401 {object} map[string]interface{}
+// @Failure 403 {object} map[string]interface{}
+// @Failure 404 {object} map[string]interface{}
+// @Router /auth/account [delete]
+func (h *AuthHandler) DeleteAccount(c *gin.Context) {
+    userID, err := h.getUserID(c)
+    if err != nil || userID == uuid.Nil {
+        c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+        return
+    }
+
+    var req dto.DeleteAccountRequest
+    if err := c.ShouldBindJSON(&req); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+        return
+    }
+
+    if req.Password == "" {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "password is required"})
+        return
+    }
+
+    err = h.authService.DeleteAccount(c.Request.Context(), userID, req.Password)
+    if err != nil {
+        if err == domain.ErrUserNotFound {
+            c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+            return
+        }
+        if err == domain.ErrCannotDeleteSuperAdmin {
+            c.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
+            return
+        }
+        if err.Error() == "invalid password" {
+            c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid password"})
+            return
+        }
+        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        return
+    }
+
+    c.JSON(http.StatusOK, gin.H{"message": "account deleted successfully"})
 }
